@@ -1,0 +1,7 @@
+{
+  "name": "madar-interface-tests",
+  "private": true,
+  "dependencies": {
+    "linkedom": "0.18.14"
+  }
+}

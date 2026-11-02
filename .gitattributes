@@ -1,0 +1,2 @@
+# Preserve exact bytes used by the shared-source and native build identity gates.
+* -text

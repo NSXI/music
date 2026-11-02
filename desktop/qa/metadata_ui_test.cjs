@@ -1,0 +1,28 @@
+require('node:fs').mkdirSync('qa/results',{recursive:true});
+const assert=require('node:assert/strict'),vm=require('node:vm');
+const {boot}=require('./app_boot_test.cjs');
+const settle=()=>new Promise(resolve=>setImmediate(resolve));
+(async()=>{
+ const {ctx,window,document,audio,storage}=await boot('en');const run=code=>vm.runInContext(code,ctx),api=window.go.main.Studio;
+ const source=audio.src,position=audio.currentTime;
+ const state={jobs:[],preferences:{folder:'C:/Fixture',libraryFolders:['C:/Fixture Music'],lyricProviders:['lrclib']},metadataConfigured:{},folderImport:{running:false},alignment:{ready:true},translation:{ready:true}};
+ const calls=[];api.GetState=async()=>state;
+ api.SetMetadataKey=async(id,value)=>{calls.push(['key',id,Boolean(value)]);state.metadataConfigured[id]=Boolean(value)};
+ api.AddLibraryFolder=async()=>{state.preferences.libraryFolders.push('C:/Second Fixture');state.folderImport={running:true,processed:1,total:4,added:1,skipped:0,failed:0,current:'C:/Second Fixture/Original.flac'};return state.folderImport};
+ api.CancelFolderImport=async()=>{state.folderImport.running=false;state.folderImport.cancelled=true};
+ api.RemoveLibraryFolder=async path=>{state.preferences.libraryFolders=state.preferences.libraryFolders.filter(x=>x!==path)};
+ api.SetResourceMode=async mode=>{state.preferences.resourceMode=mode;calls.push(['mode',mode])};
+ await run('poll()');run('navigate("settings")');await settle();
+ const input=document.querySelector('#metadata-key-fanart');input.value='FAKE-PRIVATE-TEST-KEY';document.querySelector('[data-metadata-save="fanart"]').dispatchEvent(new window.Event('click',{bubbles:true}));await settle();await settle();
+ assert.equal(input.value,'');assert.equal(document.querySelector('[data-metadata-state="fanart"]').textContent,'Key saved');assert.equal(storage.get('madar-ui-v1').includes('FAKE-PRIVATE-TEST-KEY'),false);
+ document.querySelector('[data-action="import-folder"]').dispatchEvent(new window.Event('click',{bubbles:true}));await settle();await settle();assert.equal(document.querySelectorAll('.library-folder-row').length,2);assert.ok(document.querySelector('#folder-import-progress').textContent.includes('Importing files'));
+ document.querySelector('[data-action="folder-import-cancel"]').dispatchEvent(new window.Event('click',{bubbles:true}));await settle();await settle();assert.ok(document.querySelector('#folder-import-progress').textContent.includes('Scan cancelled'));
+ window.madarResources.setFps('144');window.madarResources.setMode('economy');await settle();assert.equal(window.madarResources.budget().fps,144);assert.equal(state.preferences.resourceMode,'economy');
+ const candidate={id:'a'.repeat(20),providerName:'Original fixture',previewUrl:'/artwork/'+'b'.repeat(20)+'-'+'a'.repeat(20),width:1000,height:1000,format:'jpeg',bytes:12000,cached:true};
+ api.SearchArtwork=async()=>({candidates:[candidate],statuses:{'artwork-itunes':'1 image saved locally'},cached:true});api.ApplyArtwork=async()=>candidate;
+ await window.madarMetadata.openArtwork('fixture-track');await settle();assert.equal(document.querySelector('.artwork-choice img').getAttribute('src'),candidate.previewUrl+'?size=512');
+ document.querySelector('[data-artwork-apply]').dispatchEvent(new window.Event('click',{bubbles:true}));await settle();await settle();assert.equal(JSON.parse(storage.get('madar-ui-v1')).artworkSelections['fixture-track'],candidate.previewUrl);
+ assert.equal(audio.src,source);assert.equal(audio.currentTime,position);assert.equal(run('ui.volume'),.52);
+ assert.ok(calls.some(c=>c[0]==='key'&&c[1]==='fanart'));assert.ok(calls.some(c=>c[0]==='mode'&&c[1]==='economy'));
+ console.log('PASS: folder controls/progress, secret clearing and configuration flags, cached artwork selection, 144 FPS independent of economy mode, and unchanged audio state. No UI or real provider account used.');
+})().catch(error=>{console.error(error);process.exitCode=1});

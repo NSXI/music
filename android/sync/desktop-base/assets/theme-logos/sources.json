@@ -1,0 +1,27 @@
+[
+  {
+    "file": "bloodborne.svg",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/6/69/Bloodborne_logo_black.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Bloodborne_logo_black.svg",
+    "bytes": 10889,
+    "sha256": "7f0f6e3a64cb74aae85895dad61a99844bac8f026620d8a84d28f6296b47fa74",
+    "mime": "image/svg+xml"
+  },
+  {
+    "file": "persona-3-reload.svg",
+    "url": "https://p3re.jp/",
+    "source": "https://p3re.jp/",
+    "extraction": "Unmodified SVG bytes from h1.title-logo img data URI",
+    "bytes": 22407,
+    "sha256": "7c4187ba1ce2c312d4e204a23e3061c29a5f2d6b6660b02de5493e839381ae9e"
+  },
+  {
+    "file": "kingdom-hearts.png",
+    "url": "https://www.jp.square-enix.com/kingdom/khhd1_2/images/pc/index/logo.png",
+    "source": "https://www.jp.square-enix.com/kingdom/khhd1_2/",
+    "edition": "KINGDOM HEARTS HD 1.5 + 2.5 ReMIX",
+    "bytes": 243470,
+    "sha256": "dda9d0a7b2a17e0a6f2bb4885e9301dc534b6fe7a1bc7d1a180d22dac94f1da8",
+    "mime": "image/png"
+  }
+]

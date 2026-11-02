@@ -1,0 +1,46 @@
+name: Verify Windows and Android
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  desktop:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26.5'
+          cache-dependency-path: desktop/go.sum
+      - run: go test -C desktop ./...
+      - run: go build -C desktop -tags 'desktop,production' -ldflags '-s -w -H windowsgui' -o ../dist/Nawa.exe .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Windows-executable-test-only
+          path: dist/Nawa.exe
+  android:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26.5'
+          cache-dependency-path: android/core/go.sum
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1'
+      - run: python android/scripts/test_shared_sync.py
+      - run: ./android/build-core.ps1 -Abi arm64-v8a
+      - run: ./android/gradlew.bat -p android --no-daemon -PnawaAbis=arm64-v8a :app:assembleDebug :app:lintDebug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Android-debug-test-only
+          path: android/app/build/outputs/apk/debug/*.apk

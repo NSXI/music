@@ -1,0 +1,75 @@
+/* Three independently authored game-inspired design systems for Nawa. */
+.nawa-logo{width:100%;height:100%;stroke:none;fill:none;display:block}.nawa-wordmark-icon{width:27px;height:27px;color:var(--accent)}.nawa-brand-emblem{width:52px;height:58px;color:var(--accent);flex-shrink:0}.brand-lockup strong{display:block;font-size:27px}.nawa-logo-settings{margin:26px 0}.nawa-logo-picker{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;margin-top:22px}.nawa-logo-choice{padding:18px 10px;min-height:148px;border:1px solid var(--line);text-align:center}.nawa-logo-choice>span{display:block;width:74px;height:74px;margin:0 auto 16px}.nawa-logo-choice strong{font-size:12px;font-weight:500;display:block;line-height:1.7}.nawa-logo-choice.selected{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--panel-solid))}
+:root:has(body[data-theme=bloodborne]){--ink:#e8dfce;--muted:#b8ad9e;--accent:#bd7b71;--accent-ink:#170e10;--panel:#b4a69b0d;--panel-solid:#242123;--line:#ab9a7f52;--radius:3px;--button-radius:2px}body[data-theme=bloodborne]{font-family:Georgia,'Traditional Arabic',Tahoma,serif}
+body[data-theme=bloodborne]:not(.custom-background){background:#101113}
+body[data-theme=bloodborne] .ambient{z-index:0;opacity:.6;background:radial-gradient(ellipse at 80% 5%,#a6aaa31a,transparent 42%),repeating-linear-gradient(113deg,transparent 0 170px,#8c837408 172px 173px,transparent 175px 290px);pointer-events:none}
+body[data-theme=bloodborne] :is(.titlebar,.shell,.transport){position:relative}
+body[data-theme=bloodborne] :is(.titlebar,.sidebar,.transport){background:#111113e8;border-color:#7e72634d}
+body[data-theme=bloodborne] :is(h1,h2,h3){font-family:'Palatino Linotype',Georgia,'Traditional Arabic',serif;font-weight:500;letter-spacing:.01em}
+body[data-theme=bloodborne] h1{font-size:39px}
+body[data-theme=bloodborne] :is(input,select,textarea,small,.muted,.note,.table){font-family:'Segoe UI',Tahoma,sans-serif}
+body[data-theme=bloodborne] :is(button,input,select,textarea){border-radius:2px}
+body[data-theme=bloodborne] :is(.primary,.secondary,.quiet,.source-card,.theme-choice,.genre-card){border:1px solid #b7a58463;box-shadow:inset 0 0 0 3px #0b0b0c,0 3px 10px #0005}
+body[data-theme=bloodborne] :is(.primary,.play-button,.fs-play){background:linear-gradient(#954742,#4f252c);color:#fff2dc;border:1px solid #c1a18a}
+body[data-theme=bloodborne] button:hover{border-color:#e4d5b6;background-color:#74635038;box-shadow:inset 0 0 0 2px #100c0c,0 0 15px #b08e5830}
+body[data-theme=bloodborne] #navigation button.active{border-inline-start:2px solid #d0b183;background:#d0b18318}
+body[data-theme=bloodborne] :is(.hero,.settings-panel,.source-card,.album-card,.genre-card,.notice,.fs-player-card){border-radius:3px;border:1px solid #a38d6552;background:linear-gradient(145deg,#39353445,#151517b8)}
+body[data-theme=bloodborne] .hero{background:radial-gradient(ellipse at 80% 10%,#86807424,transparent 60%),linear-gradient(120deg,#232225,#0e1012)}
+body[data-theme=bloodborne] .hero-art .sleeve{border:double 5px #897456;background:linear-gradient(125deg,#3e3630,#181b1c);border-radius:100px 100px 2px 2px;color:#d4c19c;box-shadow:0 20px 50px #000a}
+body[data-theme=bloodborne] .hero-art .sleeve:after{content:'';position:absolute;inset:18px;border:1px solid #c9b78c66;border-radius:90px 90px 0 0;pointer-events:none}
+body[data-theme=bloodborne] dialog{background:#171719f5;border:double 4px #a08b68;border-radius:3px}
+body[data-theme=bloodborne] .fs-backdrop{background:radial-gradient(ellipse at 75% 20%,#8a8b8530,transparent 55%),#0e1013!important}
+:root:has(body[data-theme=kingdom]){--ink:#f0f7ff;--muted:#adc6e2;--accent:#82e6eb;--accent-ink:#102e42;--panel:#6dbfdf12;--panel-solid:#152c4d;--line:#a8d3f443;--radius:22px;--button-radius:18px}body[data-theme=kingdom]{font-family:'Trebuchet MS','Segoe UI',Tahoma,sans-serif}
+body[data-theme=kingdom]:not(.custom-background){background:radial-gradient(ellipse at 90% 0%,#234b70,#091b37 65%)}
+body[data-theme=kingdom] .ambient{background:radial-gradient(circle at 83% 18%,#a5dfe833,transparent 30%),repeating-conic-gradient(from 0deg at 80% 20%,#c6b56f10 0deg 1deg,transparent 1deg 45deg);opacity:.7}
+body[data-theme=kingdom] :is(.titlebar,.sidebar,.transport){background:#091b37b8;border-color:#abceef40}
+body[data-theme=kingdom] :is(h1,h2,h3){font-family:'Palatino Linotype','Trebuchet MS','Traditional Arabic',serif;font-weight:600}
+body[data-theme=kingdom] :is(.primary,.secondary,.quiet,.theme-choice,.genre-card){border:1px solid #8dc5dc85;box-shadow:inset 0 1px #f5f9ff30,inset 0 -3px #071b3b88}
+body[data-theme=kingdom] :is(.primary,.play-button,.fs-play){background:linear-gradient(135deg,#adeef0,#4593cf);color:#061b37;border:1px solid #e4dcaf}
+body[data-theme=kingdom] button:hover{box-shadow:inset 0 1px #fff5,0 0 14px #6ddbef50;border-color:#e1d3a2}
+body[data-theme=kingdom] :is(.hero,.settings-panel,.source-card,.genre-card,.fs-player-card){border:1px solid #c1d7e447;background:linear-gradient(140deg,#29466b6e,#0b1e3bb8);border-radius:20px;box-shadow:inset 0 1px #d2edff18,0 12px 25px #0611273d}
+body[data-theme=kingdom] .hero{border:double 4px #d4c18755;background:radial-gradient(circle at 80% 50%,#6dc5df30,transparent 45%),linear-gradient(130deg,#173354,#0b1735)}
+body[data-theme=kingdom] .hero-art .sleeve{background:linear-gradient(135deg,#305c87,#1c274d);border:double 5px #d5c79c;border-radius:24px;box-shadow:0 12px 45px #69d9e633}
+body[data-theme=kingdom] .hero-art .sleeve:after{content:'✦';position:absolute;inset-inline-end:20px;bottom:20px;font-size:60px;color:#e7d292}
+body[data-theme=kingdom] #navigation button.active{background:linear-gradient(90deg,#7dd8ee30,transparent);border-inline-start:3px solid #e2d29d}
+body[data-theme=kingdom] dialog{background:linear-gradient(130deg,#203a5df5,#0c1937fa);border:double 4px #c7be99;border-radius:24px}
+body[data-theme=kingdom] .fs-backdrop{background:radial-gradient(circle at 80% 10%,#5eabc73a,transparent 50%),#091b37!important}
+:root:has(body[data-theme=reload]){--ink:#f6fcff;--muted:#b1d6f5;--accent:#69edff;--accent-ink:#041a54;--panel:#66bbef14;--panel-solid:#103da3;--line:#5dabf57d;--radius:2px;--button-radius:2px}body[data-theme=reload]{font-family:Bahnschrift,'Arial Narrow',Tahoma,sans-serif}
+body[data-theme=reload]:not(.custom-background){background:linear-gradient(118deg,#071d67 65%,#0b4ab2)}
+body[data-theme=reload] .ambient{background:linear-gradient(116deg,transparent 68%,#1d8ff02a 68% 71%,transparent 71% 77%,#6fe9f31c 77% 78%,transparent 78%),radial-gradient(ellipse at 85% 10%,#1575d844,transparent 70%)}
+body[data-theme=reload] :is(.titlebar,.sidebar,.transport){background:#031a59e8;border-color:#58b7ff5c}
+body[data-theme=reload] :is(h1,h2,h3){font-family:Bahnschrift,'Arial Narrow',Tahoma,sans-serif;font-weight:750;letter-spacing:-.02em}
+body[data-theme=reload] h1{font-size:42px}
+body[data-theme=reload] :is(button,input,select,textarea){border-radius:2px}
+body[data-theme=reload] :is(.primary,.secondary,.quiet){clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%);padding-inline:22px;border:1px solid #68c7f9}
+body[data-theme=reload] :is(.primary,.play-button,.fs-play){background:#77eaff;color:#071d67;box-shadow:4px 4px 0 #0878c4}
+body[data-theme=reload] button:hover{background:#1f76c1;color:#fff;box-shadow:4px 4px 0 #60d7f5}
+body[data-theme=reload] #navigation button.active{background:#59d9f3;color:#041d59;box-shadow:6px 0 0 #fff;transform:translateX(-3px)}
+body[data-theme=reload] :is(.hero,.settings-panel,.source-card,.genre-card,.fs-player-card){background:linear-gradient(115deg,#0e388dba,#092365d9);border-radius:2px;border:1px solid #429dde7a;box-shadow:5px 5px 0 #04164a60}
+body[data-theme=reload] .hero{border-inline-start:8px solid #79eaff;background:linear-gradient(117deg,#124cc1 52%,#0a317d 52% 57%,#082a72 57%)}
+body[data-theme=reload] .hero-art .sleeve{background:linear-gradient(130deg,#72d4e6 45%,#136bc3 45% 53%,#063991 53%);border:2px solid #7cddec;border-radius:0;transform:rotate(-11deg);color:white;box-shadow:15px 15px 0 #001b54a8}
+body[data-theme=reload] dialog{background:linear-gradient(116deg,#124caa,#06215f);border:2px solid #69edff;border-radius:2px;box-shadow:10px 10px 0 #041342}
+body[data-theme=reload] .fs-backdrop{background:linear-gradient(118deg,#071d67 63%,#0d55b3 63% 67%,#10418c 67%)!important}
+body:is([data-theme=bloodborne],[data-theme=kingdom],[data-theme=reload]) .fs-player-card{color:var(--ink)}
+body:is([data-theme=bloodborne],[data-theme=kingdom],[data-theme=reload]) :is(.searchbox,.translation-controls,.lyrics-popup-section){background:var(--panel);border-color:var(--line);border-radius:var(--radius)}
+.preview-bloodborne{background:linear-gradient(135deg,#313031,#101113);border:1px solid #89785b}.preview-bloodborne aside{background:#171719}.preview-bloodborne b{background:#a8896a!important}.preview-kingdom{background:radial-gradient(circle at 80% 20%,#48799b,#10264a);border:double 3px #b9ad84}.preview-kingdom aside{background:#11213f}.preview-kingdom b{background:#82e6eb!important}.preview-reload{background:linear-gradient(116deg,#104cc8 60%,#58d3ef 60% 66%,#092d88 66%);border-radius:0!important}.preview-reload aside{background:#051b63}.preview-reload b{background:#94efff!important}
+.nawa-entry{position:fixed;inset:46px 0 0;pointer-events:none;z-index:9000;display:grid;place-items:center;overflow:hidden;animation:nawaEntryOut .9s ease both}.entry-emblem{width:150px;height:150px;color:var(--accent)}.entry-bloodborne{background:radial-gradient(ellipse,#74716855,#0d1013 72%);animation-duration:1s}.entry-bloodborne .entry-emblem{animation:nawaGate .9s cubic-bezier(.2,.7,.3,1) both}.entry-kingdom{background:repeating-conic-gradient(from 15deg at 50% 50%,#8cebf133 0deg 2deg,transparent 2deg 45deg),#0b1b37e8}.entry-kingdom .entry-emblem{animation:nawaStar .85s ease both}.entry-reload{background:linear-gradient(116deg,#0452bd 50%,#89e9f6 50% 58%,#071e67 58%);animation:nawaReload .7s cubic-bezier(.16,.8,.3,1) both}.entry-reload .entry-emblem{color:#fff;transform:rotate(-10deg)}
+body[data-theme=bloodborne] #main.nawa-route-enter{animation:nawaPageGate .55s ease both}body[data-theme=kingdom] #main.nawa-route-enter{animation:nawaPageStar .5s ease both}body[data-theme=reload] #main.nawa-route-enter{animation:nawaPageCut .4s cubic-bezier(.16,.8,.3,1) both}
+@keyframes nawaEntryOut{0%,35%{opacity:1}100%{opacity:0}}@keyframes nawaGate{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1.04)}}@keyframes nawaStar{from{opacity:0;transform:rotate(-12deg) scale(.6)}to{opacity:1;transform:rotate(0) scale(1.05)}}@keyframes nawaReload{0%,25%{transform:translateX(0)}100%{transform:translateX(-115%)}}@keyframes nawaPageGate{from{opacity:.3;transform:translateY(9px)}to{opacity:1;transform:none}}@keyframes nawaPageStar{from{opacity:.4;transform:scale(.992)}to{opacity:1;transform:none}}@keyframes nawaPageCut{from{opacity:.4;transform:translateX(22px)}to{opacity:1;transform:none}}
+body.no-motion .nawa-entry,body.nawa-hidden .nawa-entry{display:none!important}body.no-motion #main.nawa-route-enter{animation:none!important}.nawa-hidden #main.nawa-route-enter{animation-play-state:paused}
+@media(prefers-reduced-motion:reduce){.nawa-entry{display:none!important}#main.nawa-route-enter{animation:none!important}}
+@media(max-width:1000px){.nawa-logo-picker{grid-template-columns:repeat(3,minmax(0,1fr))}body[data-theme=reload] h1,body[data-theme=bloodborne] h1{font-size:34px}}
+
+body:is([data-theme=bloodborne],[data-theme=kingdom],[data-theme=reload])[data-shape=pill] :is(.primary,.secondary,.quiet){border-radius:999px;clip-path:none}body[data-theme=kingdom][data-shape=sharp] :is(.primary,.secondary,.quiet){border-radius:2px}
+
+html[lang=ar] body[data-theme=bloodborne]{font-family:Tahoma,"Segoe UI",sans-serif}
+html[lang=ar] body[data-theme=reload],html[lang=ar] body[data-theme=reload] :is(h1,h2,h3){font-family:Tahoma,"Segoe UI",sans-serif}
+body[data-theme=bloodborne] .hero-art .sleeve :is(strong,span){color:#dac9a1}
+body[data-theme=kingdom] .hero-art .sleeve :is(strong,span){color:#f4e8bd}
+body[data-theme=reload] .hero-art .sleeve :is(strong,span){color:#f5fbff}
+body[data-theme=bloodborne] .ambient{background-image:url("nawa-bloodborne.svg");background-size:cover;background-position:center;opacity:.35}
+body[data-theme=kingdom] .ambient{background-image:url("nawa-kingdom.svg");background-size:cover;background-position:center;opacity:.35}
+body:is([data-theme=bloodborne],[data-theme=kingdom],[data-theme=reload]) .ambient{z-index:0}
+body:is([data-theme=bloodborne],[data-theme=kingdom],[data-theme=reload]) :is(.titlebar,.shell,.transport){position:relative;z-index:1}
+body[data-theme=reload] :is(.primary,.secondary,.quiet):focus-visible{outline-offset:-4px}
+body.custom-panel:is([data-theme=bloodborne],[data-theme=kingdom],[data-theme=reload]) :is(.settings-panel,.source-card,.genre-card,.album-card,.fs-player-card,.lyrics-popup-section,.translation-controls){background:var(--user-panel)}

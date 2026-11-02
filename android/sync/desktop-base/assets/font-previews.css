@@ -1,0 +1,16 @@
+.lyric-font-trigger{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:43px;width:100%;padding:10px 13px;border:1px solid var(--line);text-align:start;background:var(--panel)}
+.lyric-font-trigger>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.lyric-font-trigger i{font-style:normal}
+.font-preview-card{display:block;min-width:0;padding:14px 12px;margin-top:10px;border:1px solid var(--line);background:var(--panel);border-radius:var(--button-radius)}
+.font-preview-caption{display:block;color:var(--muted);font:400 11px/1.5 'Segoe UI',Tahoma,sans-serif;margin-bottom:3px}
+.font-preview-name{display:block;font:600 12px/1.5 'Segoe UI',Tahoma,sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink)}
+.font-preview-lines{display:flex;flex-direction:column;gap:7px;margin-top:12px;min-width:0;color:var(--ink);font-size:19px;font-weight:400;line-height:1.55;text-align:start}
+.font-preview-lines>span{display:block;overflow-wrap:anywhere}.font-preview-lines>span[lang=ar]{font-size:22px}.font-preview-lines>span[lang=en]{font-size:18px}
+.font-picker-list{position:fixed;z-index:11010;padding:10px;max-height:min(350px,80dvh);background:var(--panel-solid);color:var(--ink);border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 20px 44px #0008;overflow:hidden}
+.font-picker-search{width:100%;padding:9px 12px;margin-bottom:8px}.font-picker-options{max-height:270px;overflow:auto;scrollbar-width:thin}
+.font-picker-option{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:42px;width:100%;padding:9px 10px;text-align:start;background:transparent!important;border:0!important;clip-path:none!important;box-shadow:none!important;color:var(--ink)}
+.font-picker-option strong{font:500 12px/1.5 'Segoe UI',Tahoma,sans-serif}.font-picker-option small{font-size:17px;color:var(--muted);white-space:nowrap}.font-picker-option[hidden]{display:none!important}
+.font-picker-option:hover,.font-picker-option:focus-visible,.font-picker-option[aria-selected=true]{background:color-mix(in srgb,var(--accent) 18%,transparent)!important;outline-offset:-2px}
+.font-hover-preview{position:fixed;z-index:11011;pointer-events:none;max-width:calc(100vw - 24px);padding:14px 16px;background:var(--panel-solid);color:var(--ink);border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 20px 44px #0008;overflow:hidden}
+@media(max-width:650px){.font-preview-lines{font-size:17px}.font-preview-lines>span[lang=ar]{font-size:20px}}
+
+.font-picker-option{content-visibility:auto;contain-intrinsic-size:auto 42px}.font-picker-options{overscroll-behavior:contain}

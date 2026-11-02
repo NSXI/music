@@ -1,0 +1,55 @@
+/* Focus full-screen: content reaches the viewport, controls live off-canvas. */
+html:has(body.lyrics-is-fullscreen){padding:0!important;margin:0!important;border:0!important;background:#000!important}
+body.lyrics-is-fullscreen{padding:0!important;margin:0!important;border:0!important;border-radius:0!important;width:100vw;height:100dvh;overflow:hidden}
+body.lyrics-is-fullscreen .shell{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;border:0!important;box-shadow:none!important}
+body.lyrics-is-fullscreen #main,body.lyrics-is-fullscreen .fs-scene{border:0!important;border-radius:0!important;box-shadow:none!important;outline:0!important;inset:0;margin:0!important;width:100%;height:100dvh}
+body.lyrics-is-fullscreen #main{animation:none!important;transform:none!important}
+.fs-scene .fs-composition{display:block;inset:24px clamp(18px,5vw,100px);padding:0;min-height:0}
+.fs-scene .fs-lyrics-column{width:100%;height:100%;max-width:none;display:block;padding:0}
+.fs-scene .fs-lyrics{height:100%;width:100%;max-width:none;margin:0!important}
+.fs-scene .fs-lyrics:not(.verci-renderer){padding-block:calc(50dvh - 56px)!important}
+.fs-scene .fs-lyrics.verci-renderer{padding:0!important}
+.fs-scene .fs-lyrics-meta,.fs-scene>.fs-align-status{display:none}
+.fs-dock{position:absolute;z-index:10;top:0;bottom:0;left:0;width:min(calc(var(--fs-card-size,340px) + 52px),calc(100vw - 24px));direction:ltr;transform:translateX(calc(-100% + 20px));transition:transform .32s cubic-bezier(.2,.8,.25,1);pointer-events:auto}
+.fs-dock[data-open=true],.fs-dock:hover,.fs-dock:focus-within{transform:translateX(0)}
+.fs-dock-content{height:100%;padding:24px 30px 24px 18px;overflow-y:auto;overscroll-behavior:contain;background:color-mix(in srgb,var(--panel-solid) 92%,transparent);border-right:1px solid var(--line);opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s;scrollbar-width:thin}
+.fs-dock[data-open=true] .fs-dock-content,.fs-dock:hover .fs-dock-content,.fs-dock:focus-within .fs-dock-content{opacity:1;visibility:visible}
+.fs-dock-handle{position:absolute;top:calc(50% - 38px);right:0;width:20px;height:76px;padding:0!important;display:grid;place-items:center;background:color-mix(in srgb,var(--panel-solid) 48%,transparent)!important;color:var(--accent);border-radius:0 8px 8px 0!important;clip-path:none!important;border:0!important;box-shadow:none!important;opacity:.35}
+.fs-dock-handle:hover,.fs-dock-handle:focus-visible{opacity:1}.fs-dock-handle svg{width:13px;height:13px;transition:transform .24s}.fs-dock[data-open=true] .fs-dock-handle svg{transform:rotate(180deg)}
+.fs-dock .fs-toolbar{position:static;display:flex;gap:8px;margin-bottom:22px;height:auto;direction:ltr}.fs-dock .fs-toolbar-center{display:none}.fs-dock .fs-toolbar-button{padding:9px 12px;font-size:11px}
+.fs-dock .fs-media-column{width:100%;gap:18px}.fs-dock .fs-media-art{width:min(100%,36dvh);align-self:center;aspect-ratio:1;flex-shrink:0}.fs-dock .fs-player-card{width:100%;direction:rtl}.fs-dock .fs-small-status{position:static;text-align:center;max-width:none;font-size:10px;margin-top:16px;opacity:.65}
+.fs-dock:not([data-open=true]):not(:hover):not(:focus-within) :is(.fs-disc,.fs-reel){animation-play-state:paused!important}
+body[data-theme=bloodborne] .fs-dock{transition-duration:.5s}body[data-theme=bloodborne] .fs-dock-content{border-right:double 3px #a98c63;background:#161618f5}
+body[data-theme=kingdom] .fs-dock-content{background:linear-gradient(135deg,#183a5bf5,#0a1935f5);border-right:2px solid #cfbd87}
+body[data-theme=reload] .fs-dock{transition-duration:.24s;transition-timing-function:cubic-bezier(.14,.9,.3,1)}body[data-theme=reload] .fs-dock-content{background:linear-gradient(116deg,#10347a,#041749);border-right:4px solid var(--accent)}
+body.lyrics-is-fullscreen[data-fs-background=noir] :is(.fs-scene,.fs-backdrop,.fs-veil){background:#000!important}
+body.lyrics-is-fullscreen[data-fs-background=album] .fs-backdrop{display:block!important;inset:-20px;opacity:1;background:#000!important}
+body.lyrics-is-fullscreen[data-fs-background=album] .fs-backdrop img{display:block;filter:blur(calc(var(--fs-cover-blur,52px)*.14));transform:scale(1.05)}
+body.lyrics-is-fullscreen[data-fs-background=album] .fs-veil{background:rgba(0,0,0,var(--fs-dim,.58))}
+body.lyrics-is-fullscreen[data-fs-background=theme] .fs-scene{background:var(--user-background,var(--panel-solid))!important;color:var(--ink)}
+body.lyrics-is-fullscreen[data-fs-background=theme] .fs-backdrop{display:block!important;inset:0;background:radial-gradient(ellipse at 80% 20%,color-mix(in srgb,var(--accent) 18%,transparent),transparent 65%),var(--user-background,var(--panel-solid))!important}
+body.lyrics-is-fullscreen[data-fs-background=theme] .fs-backdrop img{display:none!important}
+body.lyrics-is-fullscreen[data-fs-background=theme] .fs-veil{background:#0002}
+body[data-theme=bloodborne][data-fs-background=theme] .fs-backdrop{background:url('nawa-bloodborne.svg') center/cover,#111214!important}
+body[data-theme=kingdom][data-fs-background=theme] .fs-backdrop{background:url('nawa-kingdom.svg') center/cover,#091b37!important}
+body[data-theme=reload][data-fs-background=theme] .fs-backdrop{background:linear-gradient(118deg,#071d67 65%,#0a4cab 65% 70%,#0c2f80 70%)!important}
+#lyric-stage .lyric-line:hover{background:transparent!important;box-shadow:none!important}
+body[data-lyric-reveal=word] #lyric-stage .lyric-content>.lyric-word:not([data-word-state]),body[data-lyric-reveal=character] #lyric-stage .lyric-content>.lyric-word:not([data-word-state]),body:is([data-lyric-reveal=word],[data-lyric-reveal=character]) #lyric-stage .lyric-content>.lyric-word[data-word-state=upcoming]{visibility:hidden!important}
+body[data-lyric-reveal=character] #lyric-stage .lyric-line.current>.lyric-content .lyric-char{color:color-mix(in srgb,var(--ink) calc(var(--char-progress)*100%),transparent)!important;opacity:var(--char-progress)!important}
+body[data-lyric-reveal=line] #lyric-stage .lyric-content .lyric-word,body[data-lyric-reveal=line] #lyric-stage .lyric-content .lyric-char{visibility:visible!important;opacity:1!important;color:inherit!important}
+body:is([data-lyric-reveal=word],[data-lyric-reveal=character]) #lyric-stage.plain .lyric-word{visibility:visible!important}
+body.no-motion .fs-dock,body.no-motion .fs-dock *{transition:none!important}
+@media(prefers-reduced-motion:reduce){.fs-dock,.fs-dock *{transition:none!important}}
+@media(max-height:640px){.fs-dock .fs-media-art{width:min(100%,27dvh)}.fs-dock-content{padding-block:12px}.fs-dock .fs-media-column{gap:10px}.fs-dock .fs-toolbar{margin-bottom:12px}}
+body[data-lyric-reveal=word] #lyric-stage .lyric-content .lyric-word[data-word-state=active]{opacity:1!important}
+body[data-lyric-reveal=word] #lyric-stage .lyric-line.current>.lyric-content .lyric-word[data-word-state=active] .lyric-char{color:var(--ink)!important;opacity:1!important}
+.fs-scene .fs-lyrics{height:100%!important;min-height:0!important}
+
+.fs-background-picker{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:16px 0 24px}
+.fs-background-choice{display:flex;flex-direction:column;align-items:stretch;gap:9px;padding:9px;border:1px solid var(--line);background:var(--panel);text-align:start;font-size:12px;min-width:0;clip-path:none!important}
+.fs-background-choice.selected{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.fs-background-swatch{height:68px;position:relative;overflow:hidden;display:grid;place-items:center;border-radius:7px;color:#fff;font-size:25px;background:linear-gradient(125deg,var(--bg),var(--accent))}
+.fs-background-swatch img{height:100%;width:100%;object-fit:cover}.fs-swatch-aurora img{filter:blur(12px);transform:scale(1.2)}.fs-swatch-noir{background:#000}.fs-swatch-blue{background:linear-gradient(130deg,#071647,#274d90)}.fs-swatch-cinema{background:linear-gradient(transparent,#000),#352d40}.fs-swatch-theme{background:linear-gradient(120deg,var(--panel-solid),var(--accent))}
+#fullscreen-theme-settings{scroll-margin-top:16px;outline:none}
+body[data-lyric-reveal=character] #lyric-stage .lyric-translation .lyric-char{color:color-mix(in srgb,var(--ink) calc(var(--char-progress)*100%),transparent)!important;opacity:var(--char-progress)!important}
+@media(max-width:600px){.fs-background-picker{grid-template-columns:repeat(2,minmax(0,1fr))}}

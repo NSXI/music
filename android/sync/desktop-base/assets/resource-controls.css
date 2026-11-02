@@ -1,0 +1,9 @@
+.resource-settings-row{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
+.resource-settings-row label{font-size:13px;color:var(--ink)}
+.resource-settings-row p{font-size:11px;max-width:440px;margin-top:6px}
+.resource-settings-row select{min-width:210px;max-width:100%}
+.resource-fps-row{margin-top:15px}
+.resource-mode-status{font-size:11px;min-height:1em;color:var(--muted);margin-top:7px}
+/* Canvas styles use one logical text span for accessibility, without hidden
+   per-word/per-character DOM trees. Canvas retains the original timed data. */
+.lyric-content-compact{white-space:pre-wrap;unicode-bidi:plaintext;overflow-wrap:anywhere}

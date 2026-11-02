@@ -1,0 +1,53 @@
+/* Timestamp-managed motion. No CSS delay or free-running reveal can lead audio.
+   Word timing is source/alignment data; character motion is visual interpolation. */
+:is(#lyric-stage,.style-preview-stage) .lyric-line[data-timing] ,
+:is(#lyric-stage,.style-preview-stage) .lyric-line[data-timing] .lyric-content,
+:is(#lyric-stage,.style-preview-stage) .lyric-line[data-timing] .lyric-word,
+:is(#lyric-stage,.style-preview-stage) .lyric-line[data-timing] .lyric-char{
+ animation:none!important;animation-delay:0s!important;transition:none!important;
+}
+:is(#lyric-stage,.style-preview-stage) .lyric-line[data-timing]{clip-path:none!important}
+:is(#lyric-stage,.style-preview-stage) .lyric-line[data-timing] .lyric-content{clip-path:none!important}
+:is(#lyric-stage,.style-preview-stage) .lyric-word[data-timing=word],
+:is(#lyric-stage,.style-preview-stage) .lyric-word[data-timing=line-visual]{--word-progress:0;--word-motion:0}
+:is(#lyric-stage,.style-preview-stage) .lyric-word[data-timing=word] .lyric-char,
+:is(#lyric-stage,.style-preview-stage) .lyric-word[data-timing=line-visual] .lyric-char{
+ --char-progress:0;--char-motion:0;
+ color:color-mix(in srgb,var(--ink) calc(var(--char-progress)*100%),var(--muted))!important;
+}
+:is(#lyric-stage,.style-preview-stage) .lyric-word[data-word-state=upcoming]{--word-progress:0!important;--word-motion:0!important;animation:none!important;filter:none!important;transform:none!important;text-shadow:none!important}
+:is(#lyric-stage,.style-preview-stage) .lyric-word[data-word-state=upcoming] .lyric-char{
+ --char-progress:0!important;--char-motion:0!important;animation:none!important;
+ color:var(--muted)!important;filter:none!important;transform:none!important;text-shadow:none!important;
+}
+:is(#lyric-stage,.style-preview-stage) .lyric-line[data-timing=word] .lyric-word[data-timing=untimed]{animation:none!important;filter:none!important;transform:none!important}
+:is(#lyric-stage,.style-preview-stage) .lyric-line[data-timing] .lyric-word.joined .lyric-char{
+ display:inline!important;transform:none!important;filter:none!important;letter-spacing:normal!important;
+}
+/* The selected motion now uses the measured word/character fraction, rather
+   than a line-triggered delay sequence. Joined scripts keep inline shaping. */
+:is(#lyric-stage,.style-preview-stage)[data-motion=flow] .lyric-word[data-word-state=active].separate,
+:is(#lyric-stage,.style-preview-stage)[data-motion=rise] .lyric-word[data-word-state=active].separate{
+ display:inline-block;transform:translateY(calc(var(--word-motion)*-5px));
+}
+:is(#lyric-stage,.style-preview-stage)[data-motion=fade] .lyric-word[data-word-state],
+:is(#lyric-stage,.style-preview-stage)[data-motion=words] .lyric-word[data-word-state]{opacity:calc(.25 + var(--word-progress)*.75)}
+:is(#lyric-stage,.style-preview-stage)[data-motion=letters] .lyric-word[data-word-state] .lyric-char,
+:is(#lyric-stage,.style-preview-stage)[data-motion=typewriter] .lyric-word[data-word-state] .lyric-char,
+:is(#lyric-stage,.style-preview-stage)[data-motion=cascade] .lyric-word[data-word-state] .lyric-char{opacity:calc(.18 + var(--char-progress)*.82)}
+:is(#lyric-stage,.style-preview-stage)[data-motion=cascade] .lyric-word.separate .lyric-char[data-char-state=active]{transform:translateY(calc(var(--char-motion)*-4px))}
+:is(#lyric-stage,.style-preview-stage)[data-motion=wave] .lyric-word.separate .lyric-char[data-char-state=active]{transform:translateY(calc(var(--char-motion)*-5px))}
+:is(#lyric-stage,.style-preview-stage)[data-motion=float] .lyric-word[data-word-state=active].separate{display:inline-block;transform:translateY(calc(var(--word-motion)*-3px))}
+:is(#lyric-stage,.style-preview-stage)[data-motion=focus] .lyric-word[data-word-state=active].separate{display:inline-block;filter:blur(calc(var(--word-motion)*1.3px))}
+:is(#lyric-stage,.style-preview-stage)[data-motion=slide] .lyric-word[data-word-state=active].separate{display:inline-block;transform:translateX(calc(var(--word-motion)*6px))}
+:is(#lyric-stage,.style-preview-stage)[data-motion=glint] .lyric-word[data-word-state=active]{text-shadow:0 0 calc(var(--word-motion)*18px) var(--accent)}
+:is(#lyric-stage,.style-preview-stage)[data-motion=breathe] .lyric-word[data-word-state=active]{opacity:calc(1 - var(--word-motion)*.15)}
+:is(#lyric-stage,.style-preview-stage)[data-motion=ripple] .lyric-word[data-word-state=active]{text-decoration:underline;text-decoration-color:var(--accent);text-underline-offset:.15em}
+:is(#lyric-stage,.style-preview-stage)[data-motion=spring] .lyric-word[data-word-state=active].separate{display:inline-block;transform:scale(calc(1 + var(--word-motion)*.025))}
+/* Pause leaves the measured fractions fixed. Turning motion off retains the
+   truthful color/highlight states but suppresses physical movement. */
+body.no-motion :is(#lyric-stage,.style-preview-stage) .lyric-line[data-timing] .lyric-word,
+body.no-motion :is(#lyric-stage,.style-preview-stage) .lyric-line[data-timing] .lyric-char{transform:none!important;filter:none!important;text-shadow:none!important}
+@media(prefers-reduced-motion:reduce){
+ :is(#lyric-stage,.style-preview-stage) .lyric-line[data-timing] .lyric-word,:is(#lyric-stage,.style-preview-stage) .lyric-line[data-timing] .lyric-char{transform:none!important;filter:none!important;text-shadow:none!important}
+}

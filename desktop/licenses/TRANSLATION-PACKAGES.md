@@ -1,0 +1,29 @@
+# Translation worker packages
+
+- PyYAML==6.0.3
+- altgraph==0.17.5
+- anyio==4.15.1
+- certifi==2026.10.23
+- click==8.5.0
+- colorama==0.4.6
+- ctranslate2==4.8.4
+- filelock==4.2.4
+- fsspec==2026.9.0
+- h11==0.16.0
+- hf-xet==1.7.1
+- httpcore==1.0.9
+- httpx==0.28.1
+- huggingface_hub==1.33.0
+- idna==3.20
+- langdetect==1.0.9
+- numpy==2.5.4
+- packaging==26.3
+- pefile==2024.8.26
+- pyinstaller-hooks-contrib==2026.9
+- pyinstaller==6.22.3
+- pywin32-ctypes==0.2.3
+- setuptools==84.2.1
+- six==1.17.0
+- tokenizers==0.22.2
+- tqdm==4.70.1
+- typing_extensions==4.16.0

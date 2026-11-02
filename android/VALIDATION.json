@@ -1,0 +1,21 @@
+{
+  "version": "1.2.0",
+  "versionCode": 2,
+  "date": "2026-11-02",
+  "sharedRevision": "d4a720c55bf6b6d27b2751575914bea988042897070e3fe262efea1287cce581",
+  "apkSha256": "33b0408789233b59097b8d75bb26d4f9f4857d50bb4f385c791ffca84ceebee4",
+  "signatureVerified": true,
+  "lintRelease": "passed",
+  "instrumentation": {
+    "tests": 11,
+    "passed": 11,
+    "device": "headless muted API35 x86_64 emulator"
+  },
+  "sharedSyncTests": 7,
+  "timing": {
+    "recognizedMatchedWords": 12,
+    "needsReview": true,
+    "characterTiming": "visual interpolation"
+  },
+  "physicalSamsungTested": false
+}
