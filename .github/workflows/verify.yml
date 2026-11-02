@@ -14,6 +14,16 @@ jobs:
         with:
           go-version: '1.26.5'
           cache-dependency-path: desktop/go.sum
+      - name: Install FFmpeg test fixture dependency
+        shell: pwsh
+        run: |
+          $archive = Join-Path $env:RUNNER_TEMP 'ffmpeg.zip'
+          $destination = Join-Path $env:RUNNER_TEMP 'ffmpeg'
+          Invoke-WebRequest 'https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip' -OutFile $archive
+          Expand-Archive -LiteralPath $archive -DestinationPath $destination
+          $executable = Get-ChildItem -LiteralPath $destination -Filter ffmpeg.exe -Recurse | Select-Object -First 1
+          if (-not $executable) { throw 'FFmpeg not found in upstream archive' }
+          $executable.DirectoryName | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
       - run: go test -C desktop ./...
       - run: go build -C desktop -tags 'desktop,production' -ldflags '-s -w -H windowsgui' -o ../dist/Nawa.exe .
       - uses: actions/upload-artifact@v4
@@ -36,6 +46,8 @@ jobs:
           distribution: temurin
           java-version: '17'
       - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
       - run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1'
       - run: python android/scripts/test_shared_sync.py
       - run: ./android/build-core.ps1 -Abi arm64-v8a
