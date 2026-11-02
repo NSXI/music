@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "sourceHint": "../Madar-Music",
-  "desktopRevision": "dea15bfd9dbba0a2b56ac4ea31832a218b01e6ba6a5cc672fd3aca4e467c1f46",
+  "desktopRevision": "36eca43b5ffec8f624ef8ed4c39411d4ebcb1f74ea8cd58e92589babdc9d3b5d",
   "files": {
     "assets/app.js": "8683479d4036751302e2f28f6593e3ad96d5b6ca884236cc83f8de33a8c9d726",
     "assets/font-previews.css": "93406c61f5e8f23ec3f789bcb1b29f43fb3f378b3e4cb1dbc25c79b95ce1c0f4",
@@ -83,7 +83,7 @@
     "core/more_sources.go": "0f8e1ec0298517647b196da44aeceb3edf9abf8eaf9d2fc5aa544d9db0e7af27",
     "core/preview.go": "704e8108e2f9e6ef4db06644a77f812cf6ecfa1abd7acdbb5c62424a1a58740c",
     "core/preview_server.go": "61405266164a2b0e0ed2d6396067919f76c109c5915859e0d15a566bd460881b",
-    "core/release_identity.go": "d3c77620d22ea23c10e4797dace9eb83cb8ce4baea0cd7e49c7c8aa292a2047c",
+    "core/release_identity.go": "f30bf16b3784ba81290cd9f8aa182c36f4e2526f7e29a5c67029bb873596a06b",
     "core/sources.go": "567c824bfe29783892fdc53d24c07916141593c7010adb17cd8902eeabec3c95",
     "core/spotify.go": "08ea159a7b9de1cf0b6fd0024cc229bbbfd0c5415e0a2d25ce57c1b3a6902a58",
     "core/spotify_refresh.go": "d0e949897a36fbcf5a05ddcc2111d5aa2101e609a0dbb4fcdfd7b3de7fea7e79",
@@ -92,10 +92,10 @@
     "core/transfer.go": "bda49ebaa95d2f395865cab1c7050a0f2a92bdc85083338ce49cfc2dcc5dacce",
     "core/translation.go": "99981b0c6e77449d9039eb2c57744c080bd4ef6881d55236ed79ca88694a5d71",
     "core/updates.go": "a3671418796304774722792399c2d0187d72cba57dbd411369564cd006ac5f53",
-    "release.json": "2104a453aaebf890c9c151dd33923a084637b3ace99cf31087c31096976e545b"
+    "release.json": "c52df2118694ec16e8b8bbf0ef65c49551b3c8168d461e28e69eb162f55d16b6"
   },
   "androidFiles": {
-    "assets/app.js": "0b283dc52ef272f21c7a22f44967046ded0f867eae97b3eb82031993b0b5d4db",
+    "assets/app.js": "35ceb82bf82323fd33ce3658bda8aa32388deb67c6e9994008437c0f9cea624d",
     "assets/font-previews.css": "93406c61f5e8f23ec3f789bcb1b29f43fb3f378b3e4cb1dbc25c79b95ce1c0f4",
     "assets/font-previews.js": "266bd20c2e14badd92e1c5b3f85716b9b0c716ef631a0d44eb5da0c94a4f35fc",
     "assets/fullscreen.css": "333b594d30f207c6d622b2aa561642d47282db5ab2633e7162984d4a37554153",
@@ -173,7 +173,7 @@
     "core/more_sources.go": "d53805e9393e84b9286b044cacb05b29fd39da315555e942fdb83498e8fd3b45",
     "core/preview.go": "faf21fcd5d5039421aeb767a98b668dce0a9480a0521993eb55cd86437f048c1",
     "core/preview_server.go": "61e2fbf7a46a5fdbc9de10d31ef0371fecc84db5849de2da40ddbd9a9e417a39",
-    "core/release_identity.go": "d3c77620d22ea23c10e4797dace9eb83cb8ce4baea0cd7e49c7c8aa292a2047c",
+    "core/release_identity.go": "f30bf16b3784ba81290cd9f8aa182c36f4e2526f7e29a5c67029bb873596a06b",
     "core/sources.go": "f09e957177792ae464b92b633c565d9737ed1dfe4e41a354769f718b751e0c67",
     "core/spotify.go": "0e658fa40963128cc7e2d2a0dd555c55654784d761b53bbf23dcba6d4fbc5dd4",
     "core/spotify_refresh.go": "de7a196720497b9440e3feb97fb58db5933ec6f07cfa2a032f7e36cf1412a50d",
@@ -184,10 +184,10 @@
     "core/updates.go": "3cf704c14858ffa3ea0a559f18b784e3ffc7b6c365ae7c28e10a0127062d8a9a",
     "core/go.mod": "b54d8e95f7ceae4c6b43436f5580ea681b634157c103ef37fd2557428845de4c",
     "core/go.sum": "3d4290ab1cb819c101a10ac917e1557c37c452b8700a7f4e7b657f0803c52b58",
-    "release.json": "2104a453aaebf890c9c151dd33923a084637b3ace99cf31087c31096976e545b"
+    "release.json": "c52df2118694ec16e8b8bbf0ef65c49551b3c8168d461e28e69eb162f55d16b6"
   },
   "platformWatch": {
-    "auth_windows.go": "430e36b9a1a80a5be4754c26be56a0df125a4719ade5e188e338000811754f0b",
-    "worker_resources_windows.go": "a446ff7635c7677b907d9884e8bb70e43f86f894c720c18627aef23b6556cfe4"
+    "worker_resources_windows.go": "a446ff7635c7677b907d9884e8bb70e43f86f894c720c18627aef23b6556cfe4",
+    "auth_windows.go": "430e36b9a1a80a5be4754c26be56a0df125a4719ade5e188e338000811754f0b"
   }
 }

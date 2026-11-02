@@ -74,6 +74,7 @@ def android_app(data):
       "function drawSpectrum(){":"function drawSpectrum(){if(window.NawaMobile)return;",
       "audio.addEventListener('ended',()=>{":"audio.addEventListener('ended',()=>{if(window.NawaMobile)return;",
       "async function poll(){try{":"async function poll(){if(window.NawaMobile&&document.body.classList.contains('android-suspended'))return;try{",
+      "setInterval(poll,1000)":"setInterval(()=>window.NawaMobile.poll(),1000)",
     }
     for before,after in substitutions.items():
         if text.count(before)!=1:raise RuntimeError("Android audio/clock adapter needs review: "+before)

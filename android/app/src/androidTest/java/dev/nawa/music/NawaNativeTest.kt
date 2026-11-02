@@ -84,6 +84,7 @@ class NawaNativeTest {
         }
     }
     @Test fun silentNativePlaybackPauseAndSeek() {
+        ActivityScenario.launch(NativePlaybackTestActivity::class.java).use {
         val app=app();fixture(app)
         val instrument=InstrumentationRegistry.getInstrumentation()
         instrument.runOnMainSync {app.startService(Intent(app,PlaybackService::class.java))}
@@ -99,6 +100,7 @@ class NawaNativeTest {
         instrument.runOnMainSync {
             val s=PlaybackService.instance!!;assertNull(s.player.playerError);assertTrue(s.player.duration>=1900)
             s.command("pause",JSONObject());s.command("seek",JSONObject().put("position",1.1));assertEquals(1100,s.player.currentPosition);assertFalse(s.player.playWhenReady)
+        }
         }
     }
 }

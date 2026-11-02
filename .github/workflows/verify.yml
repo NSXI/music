@@ -50,6 +50,10 @@ jobs:
           packages: platform-tools
       - run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1'
       - run: python android/scripts/test_shared_sync.py
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node android/scripts/test_audio_bridge.cjs
       - run: ./android/build-core.ps1 -Abi arm64-v8a
       - run: ./android/gradlew.bat -p android --no-daemon -PnawaAbis=arm64-v8a :app:assembleDebug :app:lintDebug
       - uses: actions/upload-artifact@v4

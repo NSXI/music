@@ -45,6 +45,7 @@ class MainActivity : ComponentActivity() {
     private var selection: ((List<Uri>)->Unit)?=null
     private var fullscreen=false
     private var resumed=false
+    private var stateInFlight=false
     private var updateSignature=""
     private val cancelled=AtomicBoolean(false)
     private val pickFiles=registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris -> selection?.invoke(uris);selection=null }
@@ -127,7 +128,10 @@ class MainActivity : ComponentActivity() {
     private val tick=object: Runnable {
         override fun run() {
             if(isDestroyed)return
-            if(resumed&&::web.isInitialized) PlaybackService.instance?.let { service -> web.evaluateJavascript("window.NawaMobile?.state(${service.state()})",null) }
+            if(resumed&&::web.isInitialized&&!stateInFlight) PlaybackService.instance?.let { service ->
+                stateInFlight=true
+                web.evaluateJavascript("window.NawaMobile?.state(${service.state()})") { stateInFlight=false }
+            }
             if(resumed&&::web.isInitialized){val update=app.updater.snapshot().toString();if(update!=updateSignature){updateSignature=update;web.evaluateJavascript("window.nawaUpdates?.androidState($update)",null)}}
             main.postDelayed(this,if(resumed&&PlaybackService.instance?.player?.isPlaying==true)100 else 500)
         }
@@ -204,7 +208,7 @@ class MainActivity : ComponentActivity() {
                         "InstallAppUpdate" -> { val uri=app.updater.prepareInstall();main.post {try{app.updater.launchInstaller(this@MainActivity,uri);reply(id,app.updater.snapshot())}catch(error:Exception){reply(id,error=error.message)}} }
                         "Window" -> reply(id,null)
                         "DownloadTimingModel" -> { downloadModel(id) }
-                        "AndroidStatus" -> reply(id,JSONObject().put("modelReady",File(app.root,"models/ggml-base.bin").isFile).put("modelBytes",147951465).put("sdk",Build.VERSION.SDK_INT).put("abi",Build.SUPPORTED_ABIS.first()).put("eqBands",PlaybackService.instance?.state()?.optInt("eqBands") ?: 0))
+                        "AndroidStatus" -> main.post { reply(id,JSONObject().put("modelReady",File(app.root,"models/ggml-base.bin").isFile).put("modelBytes",147951465).put("sdk",Build.VERSION.SDK_INT).put("abi",Build.SUPPORTED_ABIS.first()).put("eqBands",PlaybackService.instance?.state()?.optInt("eqBands") ?: 0).put("audioOutput",getSharedPreferences("nawa-mobile",MODE_PRIVATE).getString("audioOutput","compatible"))) }
                         else -> {
                             reply(id,raw=CoreBridge.raw(method,args))
                         }
@@ -212,7 +216,24 @@ class MainActivity : ComponentActivity() {
                 } catch(e:Exception) { reply(id,error=e.message ?: "Android operation failed") }
             }
         }
-        @JavascriptInterface fun audio(command: String,data: String) { main.post { runCatching { PlaybackService.instance?.command(command,JSONObject(data)) }.onFailure { web.evaluateJavascript("window.NawaMobile?.audioError(${JSONObject.quote(it.message ?: "Playback error")})",null) } } }
+        @JavascriptInterface fun audio(command: String,data: String) {
+            val payload=runCatching {JSONObject(data)}.getOrNull() ?: return
+            val request=payload.optString("_request")
+            if(!Regex("a-[0-9]{1,18}").matches(request))return
+            main.post { executeAudio(command,payload,request,0) }
+        }
+    }
+    private fun executeAudio(command: String,data: JSONObject,request: String,attempt: Int) {
+        if(isDestroyed||!::web.isInitialized)return
+        val service=PlaybackService.instance
+        if(service==null&&attempt<40){
+            if(attempt==0)runCatching {startService(Intent(this,PlaybackService::class.java))}
+            main.postDelayed({executeAudio(command,data,request,attempt+1)},100);return
+        }
+        val result=runCatching {checkNotNull(service){"Audio player is starting / مشغل الصوت لم يجهز"};service.command(command,data);service.state()}
+        val state=result.getOrNull()?.toString() ?: "null"
+        val error=result.exceptionOrNull()?.let {JSONObject.quote(it.message ?: "Playback failed / تعذر التشغيل")} ?: "null"
+        web.evaluateJavascript("window.NawaMobile?.audioReply(${JSONObject.quote(request)},$state,$error)",null)
     }
     private fun setFullscreen(enabled: Boolean) {
         fullscreen=enabled

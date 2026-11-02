@@ -1,19 +1,85 @@
 {
-  "version": "1.3.0",
-  "versionCode": 3,
+  "version": "1.3.1",
+  "versionCode": 4,
   "date": "2026-11-02",
-  "sharedRevision": "dea15bfd9dbba0a2b56ac4ea31832a218b01e6ba6a5cc672fd3aca4e467c1f46",
-  "apkSha256": "fcadd7a0e94440bd8b6fd55b77e0ebe5a5ea0a5a0fc1bb5a77d7c615ab97916e",
+  "sharedRevision": "36eca43b5ffec8f624ef8ed4c39411d4ebcb1f74ea8cd58e92589babdc9d3b5d",
+  "apkSha256": "6ee7cf5e42495ee722206492ff4fed8ee402577fa3d0697874aabd0aa08fc939",
   "signatureVerified": true,
   "lintRelease": "passed",
   "instrumentation": {
-    "tests": 11,
-    "passed": 11,
+    "tests": 15,
+    "passed": 15,
     "device": "headless muted API35 x86_64 emulator"
   },
   "sharedSyncTests": 7,
-  "gameThemeStateChecks": 50,
-  "lyricClockChecks": 441,
-  "browserGameThemes": 3,
+  "audioBridgeRegression": "passed",
+  "actualAppUi": {
+    "scope": "Actual Android app UI + native Go/Media3, API35 muted headless emulator; original generated fixtures, no user audio/account. Not physical Samsung output/FPS measurement.",
+    "checks": [
+      {
+        "name": "actual-library-playback-and-monotonic-transport",
+        "samples": 42,
+        "advanced": 1.7405000000000002
+      },
+      {
+        "name": "pause-and-latest-scrub-wins",
+        "passed": true
+      },
+      {
+        "name": "background-media-service-and-return",
+        "passed": true
+      },
+      {
+        "name": "real-search-preview-direct",
+        "preview": true,
+        "decoded": false,
+        "time": 0.5551000000000932,
+        "duration": 8,
+        "disabled": false,
+        "error": null
+      },
+      {
+        "name": "real-search-preview-decoded",
+        "preview": true,
+        "decoded": true,
+        "time": 0.2632000000001863,
+        "duration": null,
+        "disabled": true,
+        "error": null
+      },
+      {
+        "name": "fullscreen-lyrics-transport",
+        "active": true,
+        "hasSeek": true,
+        "overflow": false,
+        "status": {
+          "loadToken": 1793636668895009,
+          "seekToken": 0,
+          "position": 2.4650000000000003,
+          "playing": true,
+          "buffering": false,
+          "paused": false,
+          "pendingAudio": 0,
+          "pendingRPC": 0
+        }
+      },
+      {
+        "name": "native-output-setting",
+        "visible": true,
+        "value": "compatible"
+      }
+    ],
+    "passed": true,
+    "final": {
+      "loadToken": 1793636668895009,
+      "seekToken": 0,
+      "position": 2.505,
+      "playing": false,
+      "buffering": false,
+      "paused": true,
+      "pendingAudio": 0,
+      "pendingRPC": 0
+    }
+  },
   "physicalSamsungTested": false
 }
