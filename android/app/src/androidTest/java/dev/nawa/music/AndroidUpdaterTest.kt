@@ -24,10 +24,13 @@ import java.util.concurrent.TimeUnit
 class AndroidUpdaterTest {
     private fun app()=ApplicationProvider.getApplicationContext<NawaApp>().also { assertTrue(it.ready.await(120,TimeUnit.SECONDS));assertNull(it.startupError) }
     private fun hash(file: File): String {val digest=MessageDigest.getInstance("SHA-256");file.inputStream().use {input->val buffer=ByteArray(262144);while(true){val n=input.read(buffer);if(n<0)break;digest.update(buffer,0,n)}};return digest.digest().joinToString(""){"%02x".format(it)}}
-    private fun candidate(file: File)=JSONObject().put("available",true).put("downloadUrl","https://updates.invalid/nawa.apk").put("sha256",hash(file)).put("bytes",file.length()).put("total",file.length()).put("versionCode",2).put("version","1.2.0")
+    private fun candidate(file: File): JSONObject {
+        val context=app();val info=context.packageManager.getPackageInfo(context.packageName,0)
+        return JSONObject().put("available",true).put("downloadUrl","https://updates.invalid/nawa.apk").put("sha256",hash(file)).put("bytes",file.length()).put("total",file.length()).put("versionCode",info.longVersionCode).put("version",info.versionName)
+    }
     private fun previous(app: NawaApp): PackageInfo {
         val actual=app.packageManager.getPackageInfo(app.packageName,PackageManager.GET_SIGNING_CERTIFICATES)
-        return PackageInfo().apply {packageName=actual.packageName;signingInfo=actual.signingInfo;applicationInfo=actual.applicationInfo;setLongVersionCode(1)}
+        return PackageInfo().apply {packageName=actual.packageName;signingInfo=actual.signingInfo;applicationInfo=actual.applicationInfo;setLongVersionCode(actual.longVersionCode-1)}
     }
     private class SourceConnection(url: URL,private val source: File,private val ranges: MutableList<Long>,private val slow: Boolean): HttpURLConnection(url) {
         private var closed=false
@@ -54,7 +57,7 @@ class AndroidUpdaterTest {
     @Test fun pausedDownloadResumesFromTheExistingPrefix() {
         val app=app();val source=File(app.applicationInfo.sourceDir);val info=candidate(source);val dir=File(app.cacheDir,"updates/test-${UUID.randomUUID()}");val ranges=CopyOnWriteArrayList<Long>()
         val manager=AndroidUpdater(app,{info},{url->SourceConnection(url,source,ranges,true)},{previous(app)},dir)
-        manager.startDownload();val part=File(dir,"nawa-2-${info.getString("sha256")}.apk.part");val end=System.currentTimeMillis()+10000
+        manager.startDownload();val part=File(dir,"nawa-"+info.getLong("versionCode")+"-"+info.getString("sha256")+".apk.part");val end=System.currentTimeMillis()+10000
         while(part.length()<1048576&&System.currentTimeMillis()<end)Thread.sleep(10)
         manager.cancel();finish(manager);assertEquals("paused",manager.snapshot().getString("status"));assertTrue(part.length()>0)
         manager.startDownload();finish(manager);assertEquals(manager.snapshot().toString(),"ready",manager.snapshot().getString("status"));assertTrue(ranges.any {it>0})
@@ -62,7 +65,7 @@ class AndroidUpdaterTest {
     @Test fun badChecksumAndWrongVersionNeverBecomeInstallable() {
         val app=app();val source=File(app.applicationInfo.sourceDir)
         for(kind in listOf("checksum","version")) {
-            val info=candidate(source);if(kind=="checksum")info.put("sha256","0".repeat(64))else info.put("versionCode",3)
+            val info=candidate(source);if(kind=="checksum")info.put("sha256","0".repeat(64))else info.put("versionCode",app.packageManager.getPackageInfo(app.packageName,0).longVersionCode+1)
             val dir=File(app.cacheDir,"updates/test-${UUID.randomUUID()}");val manager=AndroidUpdater(app,{info},{url->SourceConnection(url,source,CopyOnWriteArrayList(),false)},{previous(app)},dir)
             manager.startDownload();finish(manager);assertEquals("error",manager.snapshot().getString("status"))
             try{manager.prepareInstall();fail("Invalid APK was installable")}catch(_: IllegalStateException){}

@@ -88,3 +88,10 @@ Nawa remains an independent music application. Its ten geometric identity logos 
 - Persona 3 Reload: frontend/theme-logos/persona-3-reload.svg. Original SVG bytes decoded without modification from the h1.title-logo img data URI on https://p3re.jp/ . ©ATLUS ©SEGA. Its paths contain the publisher's lettering; no proprietary game font file is redistributed.
 
 frontend/theme-logos/sources.json records source URLs, sizes and SHA256 hashes. These image files are attributed separately from the app's own code and original decorative SVGs. No game music, sound effects, character art or extracted menu animation is included. Entrances are independent finite CSS animations, not extracted game cinematics. Local font previews reference fonts installed by the user and distribute no system font files.
+
+
+## Approved game theme resources (1.3)
+
+The three game theme designs use bundled offline font files and retain notices under `frontend/game-themes`. KHMenu and KHMenuBoldItalic are Televo's faithful recreations from [Kingdom Hearts Re:Collection](https://github.com/Televo/kingdom-hearts-recollection); author notes are retained. EB Garamond, Amiri, Noto Sans Arabic and Barlow Semi Condensed use their included SIL Open Font License notices. Adobe Garamond is used only through an installed local font if present; its commercial font file is not redistributed. Barlow is a disclosed visual alternative for Reload, not the original licensed Rodin.
+
+Makoto's portrait is from https://p3re.jp/ ; the KHII promotional image is from https://www.jp.square-enix.com/kingdom/khhd1_2/ ; Bloodborne promotional artwork is from the official PlayStation listing. Exact URLs, byte lengths and SHA-256 are in `frontend/game-themes/sources.json`. Small vector symbols and UI motions are independent interpretations. Game images/logos/trademarks belong to their owners and imply no affiliation. Existing user album covers are preserved. The animations adapt dialogue/message/menu styles to the app's audio clock; no extracted game engine animations or independent lyric scheduler are shipped.

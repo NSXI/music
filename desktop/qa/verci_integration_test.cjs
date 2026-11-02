@@ -6,7 +6,7 @@ for(const [file,name] of [['segoeui.ttf','Segoe UI'],['tahoma.ttf','Tahoma'],['c
 const settle=()=>new Promise(resolve=>setImmediate(resolve));
 (async()=>{
  const {ctx,window,document,audio,storage,calls}=await boot('en');
- const run=code=>vm.runInContext(code,ctx);assert.equal(run('lyricStyles.length'),104);
+ const run=code=>vm.runInContext(code,ctx);assert.equal(run('lyricStyles.length'),107);
  const backing=new WeakMap(),prototype=Object.getPrototypeOf(document.createElement('canvas'));
  const native=element=>{if(!backing.has(element))backing.set(element,raster.createCanvas(300,150));return backing.get(element)};
  prototype.getContext=function(type){assert.equal(type,'2d');return native(this).getContext('2d')};

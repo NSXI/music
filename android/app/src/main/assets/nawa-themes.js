@@ -30,6 +30,7 @@ function apply(){
  document.body.dataset.nawaBrandLogo=String(ui.nawaLogo);
  if(lastTheme!==ui.theme){lastTheme=ui.theme;lastView='';entrance();route();window.madarVerci?.sync()}
  if(!ui.themeEntrance||!ui.motion||reduced.matches||document.hidden)dismiss();
+ window.madarGameThemes?.decorate();
 }
 function settings(){return '<section class="nawa-logo-settings settings-panel"><h3>شعار نَوى</h3><p>عشرة شعارات أصلية. اختر شعارك؛ يُحفظ اختيارك تلقائيًا.</p><div class="nawa-logo-picker">'+window.NAWA_LOGOS.map(p=>'<button class="nawa-logo-choice '+(logoID()===p.id?'selected':'')+'" data-nawa-logo="'+p.id+'" aria-pressed="'+(logoID()===p.id)+'"><span style="color:'+p.color+'">'+window.nawaLogoSVG(p.id)+'</span><strong>'+esc(p.id+' · '+p.name)+'</strong></button>').join('')+'</div><label class="check-line nawa-entrance-toggle"><input type="checkbox" data-nawa-entrance '+(ui.themeEntrance?'checked':'')+'>دخولية خاصة لكل ثيم</label><button class="quiet" data-nawa-replay '+(!ui.motion||!ui.themeEntrance?'disabled':'')+'>إعادة عرض دخول الثيم</button><p class="note">تظهر الدخولية عند فتح التطبيق وتغيير الثيم. شعارات الألعاب تظهر في دخوليات ثيماتها؛ يبقى اختيار شعار نَوى محفوظًا.</p><p class="note">يتغير الشعار داخل التطبيق؛ أيقونة ملف Windows تستخدم الشعار الأول.</p></section>'}
 function replay(){if(entrances[ui.theme])entrance()}

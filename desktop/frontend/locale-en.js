@@ -740,3 +740,5 @@ window.MADAR_EN={
   "اختر خلفية مستقلة لشاشة الكلمات. تُحفظ تلقائيًا ويمكن تعديلها قبل الدخول إلى ملء الشاشة.": "Choose a background for the lyrics screen. It saves automatically and can be changed before entering full screen.",
   "مصادر كلمات متعددة اللغات تشمل اليابانية والعربية والروسية، مع خمسة مصادر أغلفة إضافية. تُحفظ النتائج المطابقة محليًا وتُقرأ قبل الشبكة. بعض المصادر تحتاج مفتاحك الخاص.": "Multilingual lyric sources include Japanese, Arabic and Russian, plus five additional artwork sources. Matching results are saved locally and read before using the network. Some sources need your own key."
 };
+
+Object.assign(window.MADAR_EN,{"107 أشكال عرض و15 حركة مستقلة، مع توقيت محفوظ محليًا.": "107 lyric styles and 15 motions, with timing saved locally.", "Kingdom Hearts · حوار النور": "Kingdom Hearts · Light dialogue", "Bloodborne · حبر الصياد": "Bloodborne · Hunter ink", "Persona 3 Reload · قصّ أزرق": "Persona 3 Reload · Blue cut"});

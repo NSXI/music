@@ -71,10 +71,10 @@ class NawaNativeTest {
                 val done=CountDownLatch(1)
                 scenario.onActivity { activity -> if(runCatching {activity.web}.isSuccess)activity.web.evaluateJavascript("JSON.stringify({ready:typeof ui!=='undefined',themes:typeof themes!=='undefined'?themes.length:0,styles:typeof lyricStyles!=='undefined'?lyricStyles.length:0,bridge:!!window.NawaMobile,overflow:document.documentElement.scrollWidth>innerWidth})") { result=it;done.countDown() } else done.countDown() }
                 done.await(5,TimeUnit.SECONDS)
-                if(result.contains("themes")&&result.contains("104"))break
+                if(result.contains("themes")&&result.contains("107"))break
                 Thread.sleep(300)
             }
-            assertTrue(result,result.contains("104"));assertTrue(result,result.contains("themes\\\":9"));assertTrue(result,result.contains("bridge\\\":true"));assertFalse(result,result.contains("overflow\\\":true"))
+            assertTrue(result,result.contains("107"));assertTrue(result,result.contains("themes\\\":9"));assertTrue(result,result.contains("bridge\\\":true"));assertFalse(result,result.contains("overflow\\\":true"))
             scenario.onActivity { it.web.evaluateJavascript("ui.motion=false;applyAppearance()",null) }
             for(theme in listOf("glass","orchard","pulse","cloud","prism","noir","bloodborne","kingdom","reload")) {
                 val done=CountDownLatch(1);var selected=""

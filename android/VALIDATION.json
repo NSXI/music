@@ -1,9 +1,9 @@
 {
-  "version": "1.2.0",
-  "versionCode": 2,
+  "version": "1.3.0",
+  "versionCode": 3,
   "date": "2026-11-02",
-  "sharedRevision": "d4a720c55bf6b6d27b2751575914bea988042897070e3fe262efea1287cce581",
-  "apkSha256": "33b0408789233b59097b8d75bb26d4f9f4857d50bb4f385c791ffca84ceebee4",
+  "sharedRevision": "dea15bfd9dbba0a2b56ac4ea31832a218b01e6ba6a5cc672fd3aca4e467c1f46",
+  "apkSha256": "fcadd7a0e94440bd8b6fd55b77e0ebe5a5ea0a5a0fc1bb5a77d7c615ab97916e",
   "signatureVerified": true,
   "lintRelease": "passed",
   "instrumentation": {
@@ -12,10 +12,8 @@
     "device": "headless muted API35 x86_64 emulator"
   },
   "sharedSyncTests": 7,
-  "timing": {
-    "recognizedMatchedWords": 12,
-    "needsReview": true,
-    "characterTiming": "visual interpolation"
-  },
+  "gameThemeStateChecks": 50,
+  "lyricClockChecks": 441,
+  "browserGameThemes": 3,
   "physicalSamsungTested": false
 }

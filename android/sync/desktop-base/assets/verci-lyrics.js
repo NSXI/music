@@ -68,5 +68,5 @@ for(const name of ['timeupdate','seeking','seeked','loadedmetadata','play','paus
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)sync()});
 reducedQuery.addEventListener?.('change',sync);
 window.addEventListener('resize',()=>{if(stage)resize()});
-window.madarVerci={sync,frame,settings,dispose,status:()=>({active:Boolean(stage),kind:data?.kind,units:data?.units.length||0,width,height,pixelRatio:ratio,frames:state.frames})};
+window.madarVerci={sync,frame,settings,dispose,invalidateFonts:()=>{state.measure.clear();state.wrap.clear();state.positions.clear();if(stage)resize()},status:()=>({active:Boolean(stage),kind:data?.kind,units:data?.units.length||0,width,height,pixelRatio:ratio,frames:state.frames})};
 })();

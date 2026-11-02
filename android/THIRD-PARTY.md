@@ -14,3 +14,5 @@ This is an independent Android port of the user's Nawa project. Existing desktop
 No user audio, cached lyric bodies, provider credentials, signing secrets or language/timing models are in the distributed source ZIP. The optional test speech was generated locally and is not part of the APK.
 
 Android update installation uses the system package installer, with a non-exported FileProvider restricted to the private update cache. Official APIs: https://developer.android.com/reference/androidx/core/content/FileProvider and https://developer.android.com/reference/android/content/pm/PackageManager#canRequestPackageInstalls() . Downloads are verified before handing a read-only content URI to Android; system confirmation remains required.
+
+Approved game theme fonts and artwork are shared under app/src/main/assets/game-themes, with OFL notices, Televo author notes and exact source/hash provenance. Nawa Reload uses Barlow as a visual alternative, not the licensed original Rodin. Adobe Garamond is local-only on desktop and is not in this APK; Android uses the bundled EB Garamond fallback.

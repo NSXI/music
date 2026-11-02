@@ -1,0 +1,120 @@
+[
+  {
+    "file": "KHMenu.otf",
+    "url": "https://raw.githubusercontent.com/Televo/kingdom-hearts-recollection/main/Fonts/KHMenu.otf",
+    "bytes": 28244,
+    "sha256": "950f7d79e458760a9623db78b1ffcf6af02a161c1eb8a0962e674b1713704718"
+  },
+  {
+    "file": "KHMenuBoldItalic.otf",
+    "url": "https://raw.githubusercontent.com/Televo/kingdom-hearts-recollection/main/Fonts/KHMenuBoldItalic.otf",
+    "bytes": 27984,
+    "sha256": "7cef12cf26506d0fd134676b58249303e0d70531a2d9da0545f5463137241832"
+  },
+  {
+    "file": "KH-font-info.txt",
+    "url": "https://raw.githubusercontent.com/Televo/kingdom-hearts-recollection/main/Fonts/Font%20Info.txt",
+    "bytes": 4141,
+    "sha256": "b15603dbf2f1b470cf6bb9f312f8226c2043dc10a19c0a6a8084f72db1e0af8d"
+  },
+  {
+    "file": "KH-ReCollection-README.md",
+    "url": "https://raw.githubusercontent.com/Televo/kingdom-hearts-recollection/main/README.md",
+    "bytes": 2685,
+    "sha256": "c7e5a776535c90fff65d8b3fdfee3f6a451fd55129b662c22dc0517e44695630"
+  },
+  {
+    "file": "Barlow-BlackItalic.ttf",
+    "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/barlowsemicondensed/BarlowSemiCondensed-BlackItalic.ttf",
+    "bytes": 115460,
+    "sha256": "30b873b860062acf2ad4c9dff24c0e7793ca9de26ec071a38c587534974865ae"
+  },
+  {
+    "file": "Barlow-OFL.txt",
+    "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/barlowsemicondensed/OFL.txt",
+    "bytes": 4377,
+    "sha256": "186d750eb496a4c17a76385f82be6aea2ac1cf2de074a811d63786cf374ea73f"
+  },
+  {
+    "file": "Amiri-Regular.ttf",
+    "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/amiri/Amiri-Regular.ttf",
+    "bytes": 431116,
+    "sha256": "ab391c4147d054c48976e98322ad0eefe1427aa0e0502a12a4c75d80a70cfcd7"
+  },
+  {
+    "file": "Amiri-OFL.txt",
+    "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/amiri/OFL.txt",
+    "bytes": 4389,
+    "sha256": "72de68e5954f4fdd24702292ef5a32f003ca960ec9330dc86e5eefb5dffb9b22"
+  },
+  {
+    "file": "NotoSansArabic.ttf",
+    "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosansarabic/NotoSansArabic%5Bwdth,wght%5D.ttf",
+    "bytes": 844676,
+    "sha256": "63111b5b2e074dd48cc67692e0a2726d86ee94c1c37fe8598257b7b4e87e869e"
+  },
+  {
+    "file": "NotoSansArabic-OFL.txt",
+    "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosansarabic/OFL.txt",
+    "bytes": 4382,
+    "sha256": "07fc70bfeb985cc1a87a8587d0a0c80bab11c86c9dc3fd95b6f0cb332f983e96"
+  },
+  {
+    "file": "EBGaramond.ttf",
+    "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/ebgaramond/EBGaramond%5Bwght%5D.ttf",
+    "bytes": 851176,
+    "sha256": "ef9512f92f6d579e5dc75af59a5a4b1b8b47d2eda89e00b954d44520e5369027"
+  },
+  {
+    "file": "EBGaramond-OFL.txt",
+    "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/ebgaramond/OFL.txt",
+    "bytes": 4398,
+    "sha256": "0985066662eb755ed3683ae5482a81a9195b49ce3f7e165cc2388b3dbece7dd7"
+  },
+  {
+    "file": "makoto.webp",
+    "url": "https://p3re.jp/resources/img/top/character1_badbd990dcbabe1f25c22de113f772a0.webp",
+    "bytes": 32258,
+    "sha256": "697af56904fa69930f50d93c49c410583e6fa1ddef0c4ee9e2b050374c034a5a"
+  },
+  {
+    "file": "kingdom-art.png",
+    "url": "https://www.jp.square-enix.com/kingdom/khhd1_2/images/pc/introduction/s4_image.png",
+    "bytes": 1017650,
+    "sha256": "53a34319f8e93c896b9b2502628d11c1975bb4d4a73be7fb5070090245effb7c",
+    "referenceOnly": true
+  },
+  {
+    "file": "hunter.png",
+    "url": "https://image.api.playstation.com/vulcan/img/rnd/202010/2614/O2Z66UWrZH8zcejxopwWxhGu.png",
+    "bytes": 2081830,
+    "sha256": "7838e6e51ff3526987bcc83b44a947a85d46e9357a32d88dad82cb4c8577138b",
+    "referenceOnly": true
+  },
+  {
+    "file": "hunter-bg.webp",
+    "sourceFile": "hunter.png",
+    "sourceBytes": 2081830,
+    "sourceSha256": "7838e6e51ff3526987bcc83b44a947a85d46e9357a32d88dad82cb4c8577138b",
+    "bytes": 215934,
+    "sha256": "2c675be937c493ab50b80b2ae2bd8d7cb8cde25d393d93498ef16d302f65c4dc",
+    "displayDerivative": true,
+    "size": [
+      1280,
+      720
+    ]
+  },
+  {
+    "file": "kingdom-avatar.webp",
+    "sourceFile": "kingdom-art.png",
+    "sourceBytes": 1017650,
+    "sourceSha256": "53a34319f8e93c896b9b2502628d11c1975bb4d4a73be7fb5070090245effb7c",
+    "bytes": 59934,
+    "sha256": "29257494ebd046a9ce9a7daa3ed5ce0b136b1a71ef944c3aa4284efa91231d6f",
+    "displayDerivative": true,
+    "size": [
+      700,
+      385
+    ]
+  }
+]

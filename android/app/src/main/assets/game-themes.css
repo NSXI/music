@@ -1,0 +1,113 @@
+/* Approved game designs. Bundled, offline fonts; no independent lyric animation clock. */
+@font-face{font-family:'Nawa KHMenu';src:url('game-themes/KHMenu.otf');font-display:swap;unicode-range:U+0000-05FF,U+1E00-1EFF,U+2000-27FF}
+@font-face{font-family:'Nawa KHMenu';src:url('game-themes/KHMenuBoldItalic.otf');font-weight:700 900;font-style:italic;font-display:swap;unicode-range:U+0000-05FF,U+1E00-1EFF,U+2000-27FF}
+@font-face{font-family:'Nawa KHMenu';src:url('game-themes/NotoSansArabic.ttf');font-weight:100 900;font-display:swap;unicode-range:U+0600-08FF,U+FB50-FEFF}
+@font-face{font-family:'Nawa Hunter';src:local('AGaramondPro-Regular'),local('Adobe Garamond Pro'),url('game-themes/EBGaramond.ttf');font-weight:400 800;font-display:swap;unicode-range:U+0000-05FF,U+1E00-1EFF,U+2000-27FF}
+@font-face{font-family:'Nawa Hunter';src:url('game-themes/Amiri-Regular.ttf');font-display:swap;unicode-range:U+0600-08FF,U+FB50-FEFF}
+@font-face{font-family:'Nawa Reload';src:url('game-themes/Barlow-BlackItalic.ttf');font-weight:100 900;font-display:swap;unicode-range:U+0000-05FF,U+1E00-1EFF,U+2000-27FF}
+@font-face{font-family:'Nawa Reload';src:url('game-themes/NotoSansArabic.ttf');font-weight:100 900;font-display:swap;unicode-range:U+0600-08FF,U+FB50-FEFF}
+@font-face{font-family:'Nawa Arabic';src:url('game-themes/NotoSansArabic.ttf');font-weight:100 900;font-display:swap}
+@font-face{font-family:'Nawa Amiri';src:url('game-themes/Amiri-Regular.ttf');font-display:swap}
+body:is([data-theme=kingdom],[data-theme=bloodborne],[data-theme=reload]){--game-ink:var(--ink);--game-line:var(--line)}
+body:is([data-theme=kingdom],[data-theme=bloodborne],[data-theme=reload]) :is(button,select,input,textarea){clip-path:none}
+body:is([data-theme=kingdom],[data-theme=bloodborne],[data-theme=reload]) :is(button,select,input,textarea):focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+body:is([data-theme=kingdom],[data-theme=bloodborne],[data-theme=reload]) .brand-lockup{flex-wrap:nowrap;position:relative;gap:8px;padding-inline:4px}
+body:is([data-theme=kingdom],[data-theme=bloodborne],[data-theme=reload]) .brand-lockup>div{min-width:0}
+body:is([data-theme=kingdom],[data-theme=bloodborne],[data-theme=reload]) .brand-lockup .nawa-brand-emblem{width:34px;height:44px;flex-basis:34px}
+body:is([data-theme=kingdom],[data-theme=bloodborne],[data-theme=reload]) .brand-lockup .nawa-game-avatar{width:32px;height:32px;flex-basis:32px}
+body:is([data-theme=kingdom],[data-theme=bloodborne],[data-theme=reload]) .sidebar{overflow-y:auto;scrollbar-width:thin}
+body:is([data-theme=kingdom],[data-theme=bloodborne],[data-theme=reload]) #navigation{flex-shrink:0}
+.nawa-game-avatar{display:block;width:43px;height:43px;flex:0 0 43px;border:1px solid var(--accent);margin-inline-start:auto;background-color:var(--panel-solid);box-shadow:0 0 0 3px color-mix(in srgb,var(--panel-solid) 65%,transparent);overflow:hidden}
+.game-avatar-kingdom{border-radius:50%;background:url('game-themes/kingdom-avatar.webp') -319px -98px/700px 385px}
+.game-avatar-bloodborne{border-radius:1px;background-image:url('game-themes/hunter-bg.webp');background-position:66% 43%;background-size:170px auto;filter:saturate(.45)}
+.game-avatar-reload{border-radius:50%;background-image:url('game-themes/makoto.webp');background-position:center 8%;background-size:115% auto;background-color:#78d2ff}
+body[data-game-avatar=symbol] .nawa-game-avatar{background:var(--accent);border:0;box-shadow:none;mask:center/80% no-repeat;filter:none}
+body[data-game-avatar=symbol] .game-avatar-kingdom{mask-image:url('game-themes/crown.svg')}
+body[data-game-avatar=symbol] .game-avatar-bloodborne{mask-image:url('game-themes/rune.svg')}
+body[data-game-avatar=symbol] .game-avatar-reload{mask-image:url('game-themes/moon.svg')}
+.game-theme-settings{margin-block:22px}.game-theme-settings select{margin-top:8px;max-width:310px}.game-theme-settings .check-line{line-height:1.8}.game-theme-settings .field{display:block}.game-theme-settings .note{max-width:75ch;line-height:1.8}
+/* KHII command rows: dark bevels and warm, unmistakable focus. */
+:root:has(body[data-theme=kingdom]){--bg:#09172d;--ink:#f4f7ff;--muted:#9db5ce;--accent:#f8d45b;--accent-ink:#30231b;--panel:#28476938;--panel-solid:#182c46;--line:#93aed45c;--radius:8px;--button-radius:7px}
+body[data-theme=kingdom]{font-family:'Nawa KHMenu','Nawa Arabic',sans-serif}
+body[data-theme=kingdom]:not(.custom-background){background:radial-gradient(ellipse at 85% 10%,#3e6488aa,transparent 49%),linear-gradient(125deg,#152945,#071225 80%)}
+body[data-theme=kingdom] .ambient{opacity:.35;background:radial-gradient(circle at 74% 26%,#9cdcf32e,transparent 35%);pointer-events:none}
+body[data-theme=kingdom][data-game-art=true] .ambient:after{content:'';position:absolute;width:min(42vw,540px);height:min(42vw,540px);inset-inline-start:4%;top:15%;background:#9cc9df;opacity:.08;mask:url('game-themes/crown.svg') center/contain no-repeat;transform:rotate(-10deg)}
+body[data-theme=kingdom] :is(h1,h2,h3){font-family:'Nawa KHMenu','Nawa Arabic',sans-serif;font-weight:600;letter-spacing:normal}
+body[data-theme=kingdom] :is(.titlebar,.sidebar,.transport){background:#0b1a30d9;border-color:var(--line)}
+body[data-theme=kingdom] #navigation button{border:2px solid #506887;border-inline-end-color:#071120;border-bottom-color:#000;border-radius:7px 23px 23px 7px;background:linear-gradient(#3a5876,#192c47 52%,#111f32);box-shadow:inset 0 1px #d1eaff3d,0 2px #0009;color:var(--ink);text-shadow:1px 2px #03102d;min-height:46px;margin-block:6px}
+body[data-theme=kingdom] #navigation button:is(:hover,.active){color:#fff5ba;border:2px solid color-mix(in srgb,var(--accent) 80%,#503a20);background:linear-gradient(color-mix(in srgb,var(--accent) 88%,white),color-mix(in srgb,var(--accent) 65%,#593c22) 55%,#593c22);box-shadow:inset 0 1px #fff7c8a3,0 0 13px #f0c65f25;color:#fff9d8}
+body[data-theme=kingdom] :is(.primary,.play-button,.fs-play){color:var(--accent-ink);border:1px solid var(--accent);background:linear-gradient(color-mix(in srgb,var(--accent) 72%,#fff),var(--accent) 55%,#947033);box-shadow:inset 0 1px #fff6,0 2px #061326;border-radius:7px}
+body[data-theme=kingdom] :is(.secondary,.quiet){background:linear-gradient(#426c917d,#142e4b);border:1px solid #839fb9;border-radius:6px;box-shadow:inset 0 1px #a4cae533,0 2px #050f20}
+body[data-theme=kingdom] :is(.settings-panel,.source-card,.genre-card,.album-card,.fs-player-card){border-radius:6px;border-color:var(--line);background:linear-gradient(145deg,#2b4b6b52,#0b1e3ba3);box-shadow:inset 0 1px #d2edff14}
+body[data-theme=kingdom] .hero{border:1px solid #9ab5d688;border-radius:7px;box-shadow:inset 0 0 0 3px #111d2e,0 12px 25px #0003;background:radial-gradient(circle at 75% 35%,#638caa66,transparent 50%),linear-gradient(125deg,#213f5e,#0a1b32)}
+body[data-theme=kingdom] .hero-art .sleeve{border-radius:5px;border:3px solid #a1bbd4;box-shadow:0 0 0 3px #111d2e,0 0 0 4px #7394b2,0 18px 30px #0005}
+body[data-theme=kingdom] :is(small,.note,.muted,input,select,textarea){line-height:1.65}
+/* Bloodborne: quiet engraved panels; artwork stays behind a strong legibility veil. */
+:root:has(body[data-theme=bloodborne]){--bg:#101112;--ink:#e3ddca;--muted:#a7a396;--accent:#c8b993;--accent-ink:#171715;--panel:#24242055;--panel-solid:#191b1d;--line:#9f96814d;--radius:2px;--button-radius:1px}
+body[data-theme=bloodborne]{font-family:'Nawa Hunter','Nawa Amiri',serif}
+body[data-theme=bloodborne]:not(.custom-background){background:#101112}
+body[data-theme=bloodborne][data-game-art=true]:not(.custom-background){background:linear-gradient(90deg,#0b0c0df5,#0d0e10db 45%,#101113bd),url('game-themes/hunter-bg.webp') 65% center/cover fixed}
+body[data-theme=bloodborne] .ambient{opacity:.16;background:radial-gradient(ellipse at 80% 8%,#bab5a026,transparent 50%);pointer-events:none}
+body[data-theme=bloodborne] :is(h1,h2,h3){font-family:'Nawa Hunter','Nawa Amiri',serif;font-weight:500;letter-spacing:normal}
+body[data-theme=bloodborne] :is(input,select,textarea,small,.muted,.note,.table){font-family:'Nawa Hunter','Nawa Amiri',serif}
+body[data-theme=bloodborne] :is(.titlebar,.sidebar,.transport){background:#111214e0;border-color:var(--line)}
+body[data-theme=bloodborne] :is(.settings-panel,.source-card,.genre-card,.album-card,.notice,.fs-player-card){border-radius:1px;background:linear-gradient(120deg,#282925b5,#101113e8);border:1px solid var(--line);box-shadow:inset 0 0 0 3px #090a0c70}
+body[data-theme=bloodborne] #navigation button{border:1px solid #84765b65;border-radius:0;background:linear-gradient(90deg,#18191ae8,#18191a30);box-shadow:inset 0 0 0 2px #08090b9e;min-height:43px;margin-block:5px;font-size:16px}
+body[data-theme=bloodborne] #navigation button:is(.active,:hover){border:1px solid color-mix(in srgb,var(--accent) 65%,transparent);background:linear-gradient(90deg,#99876c3b,#c8b78b22,#99876c16);color:var(--ink);box-shadow:inset 0 0 0 2px #1a1814}
+body[data-theme=bloodborne] :is(.primary,.secondary,.quiet,.play-button,.fs-play){background:linear-gradient(#33332f,#151718);border:1px solid #a5957180;border-radius:0;color:var(--ink);box-shadow:inset 0 0 0 2px #101114}
+body[data-theme=bloodborne] button:not(.lyric-line):hover{background-color:#74635021;border-color:var(--accent);box-shadow:inset 0 0 0 2px #100c0c}
+body[data-theme=bloodborne] .hero{border:1px solid #9d8d704d;border-radius:1px;background:linear-gradient(125deg,#252722b8,#101113d1);box-shadow:inset 0 0 0 4px #090b0c55}
+body[data-theme=bloodborne] dialog{background:#141617f7;border:1px solid #a08b6880;box-shadow:inset 0 0 0 3px #07090b,0 24px 70px #0009;border-radius:0}
+/* P3 Reload: cuts are on surfaces, so focus outlines and translated text stay intact. */
+:root:has(body[data-theme=reload]){--bg:#083df2;--ink:#f5fcff;--muted:#a7cfff;--accent:#54ebff;--accent-ink:#061549;--panel:#062a9180;--panel-solid:#061c67;--line:#8bc4ff55;--radius:1px;--button-radius:1px}
+body[data-theme=reload]{font-family:'Nawa Reload','Nawa Arabic',sans-serif}
+body[data-theme=reload]:not(.custom-background){background:linear-gradient(117deg,#043aed,#0841ef 48%,#0a2389)}
+body[data-theme=reload] .ambient{opacity:.7;pointer-events:none;background:linear-gradient(122deg,transparent 70%,#3bc9ff24 70% 82%,transparent 82% 85%,#66edff12 85% 90%,transparent 90%)}
+body[data-theme=reload][data-game-art=true] .ambient:after{content:'';position:absolute;inset-inline-start:-5%;top:9%;width:min(55vw,700px);height:min(55vw,700px);background:#58edff;opacity:.13;mask:url('game-themes/moon.svg') center/contain no-repeat;transform:rotate(-16deg)}
+body[data-theme=reload] :is(h1,h2,h3){font-family:'Nawa Reload','Nawa Arabic',sans-serif;font-weight:850;font-style:normal;letter-spacing:normal}
+body[data-theme=reload] :is(.titlebar,.sidebar,.transport){background:#06174edb;border-color:#4de6ff3b}
+body[data-theme=reload] #navigation button{position:relative;isolation:isolate;background:none;border:0;box-shadow:none;border-radius:0;min-height:46px;color:var(--ink);transform:none;font-size:16px}
+body[data-theme=reload] #navigation button:before{content:'';position:absolute;inset:1px 4px;z-index:-1;transform:skewX(-9deg);background:#0b2f9355;border:0;pointer-events:none}
+body[data-theme=reload] #navigation button:is(:hover,.active){color:#061549;background:none;transform:none;box-shadow:none}
+body[data-theme=reload] #navigation button:is(:hover,.active):before{background:#f5fcff;box-shadow:5px 3px var(--accent)}
+body[data-theme=reload] :is(.primary,.secondary,.quiet,.play-button,.fs-play){border-radius:1px;clip-path:none;transform:none;border:1px solid #5defff4d;background:#071a5e;box-shadow:3px 3px #001354;color:var(--ink)}
+body[data-theme=reload] :is(.primary,.play-button,.fs-play){background:var(--accent);color:var(--accent-ink);border-color:var(--accent);box-shadow:4px 3px #001354}
+body[data-theme=reload] :is(.settings-panel,.source-card,.genre-card,.album-card,.fs-player-card){background:linear-gradient(115deg,#06278fe8,#071d6799);border-radius:1px;border:1px solid #83c8ff39;box-shadow:4px 4px #0017595e}
+body[data-theme=reload] .hero{background:linear-gradient(118deg,#0739cb,#0b58f4 70%,#1cb5d722);border:1px solid #73ebff42;border-radius:1px;box-shadow:6px 5px #00185966}
+body[data-theme=reload] dialog{border:1px solid var(--accent);background:#061b63fa;box-shadow:7px 6px #36cfe53b;border-radius:1px}
+/* Lyric effects are algebra over --word-progress/--char-progress, with no delays. */
+:is(#lyric-stage,.style-preview-stage)[data-style^=game-]{text-align:center}
+:is(#lyric-stage,.style-preview-stage)[data-style^=game-] .lyric-line{font-family:var(--lyric-font,inherit);text-align:center;border:0;border-radius:0;background:none!important;padding:7px 0;line-height:1.6;letter-spacing:normal;box-shadow:none!important;transform:none!important}
+:is(#lyric-stage,.style-preview-stage)[data-style^=game-] .lyric-line.current{opacity:1;filter:none!important}
+:is(#lyric-stage,.style-preview-stage)[data-style^=game-] .lyric-word{--game-enter:clamp(0,calc(var(--word-progress,0)*3.5),1);--game-settle:calc(1 - var(--game-enter))}
+:is(#lyric-stage,.style-preview-stage)[data-style^=game-] .lyric-word[data-word-state=active]{display:inline-block;animation:none!important;transition:none!important;filter:none!important}
+:is(#lyric-stage,.style-preview-stage)[data-style^=game-] .lyric-translation{color:var(--ink);font-family:var(--translation-font,inherit);margin-top:18px;opacity:.87;font-size:.55em;line-height:1.8}
+:is(#lyric-stage,.style-preview-stage)[data-style=game-kingdom] .lyric-line{font-size:clamp(27px,3.2vw,53px);font-weight:500}
+:is(#lyric-stage,.style-preview-stage)[data-style=game-kingdom] .lyric-word[data-word-state=active]{transform:none!important;text-shadow:1px 2px 0 #03102d,0 0 12px #ffdf9530!important}
+:is(#lyric-stage,.style-preview-stage)[data-style=game-kingdom] .lyric-word[data-word-state=active].separate .lyric-char{transform:none!important;text-shadow:1px 2px 0 #03102d}
+body[data-lyric-reveal=character] :is(#lyric-stage,.style-preview-stage)[data-style=game-kingdom] .lyric-word[data-word-state=active].separate .lyric-char{opacity:var(--char-progress)!important}
+:is(#lyric-stage,.style-preview-stage)[data-style=game-bloodborne] .lyric-line{font-size:clamp(30px,3.6vw,58px);font-weight:500;line-height:1.5}
+:is(#lyric-stage,.style-preview-stage)[data-style=game-bloodborne] .lyric-word[data-word-state=active]{transform:scaleX(calc(1 + var(--game-settle)*.025))!important;text-shadow:0 0 calc(var(--game-settle)*9px) #cfb77e4d!important}
+:is(#lyric-stage,.style-preview-stage)[data-style=game-reload] .lyric-line{font-size:clamp(32px,4vw,65px);font-weight:850;line-height:1.4}
+:is(#lyric-stage,.style-preview-stage)[data-style=game-reload] .lyric-word[data-word-state=active]{transform:translate(calc(var(--game-settle)*12px),calc(var(--game-settle)*-3px)) skewX(calc(var(--game-settle)*-6deg))!important;text-shadow:3px 2px #06238b!important;clip-path:polygon(calc(var(--game-settle)*-5%) -15%,calc(115% - var(--game-settle)*110%) -15%,calc(115% - var(--game-settle)*125%) 115%,-10% 115%)}
+:is(#lyric-stage,.style-preview-stage)[data-style=game-reload] .lyric-word[data-word-state=active][dir=rtl]{transform:translate(calc(var(--game-settle)*-12px),calc(var(--game-settle)*-3px)) skewX(calc(var(--game-settle)*-4deg))!important;clip-path:polygon(calc(var(--game-settle)*110%) -15%,110% -15%,110% 115%,calc(var(--game-settle)*125% - 15%) 115%)}
+/* Joining scripts retain inline character shaping. Move/clip the whole word, never glyphs. */
+:is(#lyric-stage,.style-preview-stage)[data-style^=game-] .lyric-word.joined .lyric-char{display:inline!important;transform:none!important;letter-spacing:normal!important}
+body[data-lyric-reveal=line] :is(#lyric-stage,.style-preview-stage)[data-style^=game-] .lyric-word{transform:none!important;clip-path:none!important;text-shadow:none!important}
+body.no-motion :is(#lyric-stage,.style-preview-stage)[data-style^=game-] :is(.lyric-word,.lyric-char){transform:none!important;clip-path:none!important;filter:none!important;text-shadow:none!important}
+@media(prefers-reduced-motion:reduce){:is(#lyric-stage,.style-preview-stage)[data-style^=game-] :is(.lyric-word,.lyric-char){transform:none!important;clip-path:none!important;filter:none!important;text-shadow:none!important}}
+/* Full-screen themes honour the chosen background instead of replacing album/black modes. */
+body:is([data-theme=kingdom],[data-theme=bloodborne],[data-theme=reload]):not([data-fs-background=theme]) .fs-backdrop{background:transparent!important}
+body[data-theme=kingdom][data-fs-background=theme] .fs-backdrop{background:radial-gradient(ellipse at 65% 20%,#20466a,#09172d 75%)!important}
+body[data-theme=bloodborne][data-fs-background=theme] .fs-backdrop{background:#101112!important}
+body[data-theme=bloodborne][data-fs-background=theme][data-game-art=true] .fs-backdrop{background:linear-gradient(#0b0c0de8,#0c0e10e0),url('game-themes/hunter-bg.webp') center/cover!important}
+body[data-theme=reload][data-fs-background=theme] .fs-backdrop{background:linear-gradient(115deg,#0736df,#0633e4 60%,#02174d)!important}
+.fs-scene :is([data-style=game-kingdom],[data-style=game-bloodborne],[data-style=game-reload]) .lyric-line{background:none!important;max-width:1150px;margin-inline:auto;font-size:var(--fs-text-size,42px)}
+body[data-theme=reload] #main.nawa-route-enter{animation:gameRouteBlue .24s cubic-bezier(.16,.8,.22,1) both}
+@keyframes gameRouteBlue{from{opacity:.7;transform:translateX(9px)}to{opacity:1;transform:none}}
+.entry-kingdom .entry-ornaments i{box-shadow:0 0 12px #fff4c33b}.entry-bloodborne .entry-emblem{filter:drop-shadow(0 0 13px #c8b99328)}.entry-reload .entry-ornaments i{will-change:transform}
+@media(max-width:760px){.nawa-game-avatar{width:34px;height:34px;flex-basis:34px}body:is([data-theme=kingdom],[data-theme=bloodborne],[data-theme=reload]) #navigation button{min-height:44px;margin-block:4px}body[data-theme=bloodborne][data-game-art=true]:not(.custom-background){background-attachment:scroll}.game-theme-settings .check-line{font-size:12px}.game-theme-settings select{max-width:100%}}
+@media(prefers-reduced-motion:reduce){body[data-theme=reload] #main.nawa-route-enter{animation:none!important}}
+/* Match the directional active-word selectors as well, including Arabic translation. */
+body.no-motion :is(#lyric-stage,.style-preview-stage)[data-style^=game-] .lyric-line :is(.lyric-word[data-word-state],.lyric-char){transform:none!important;clip-path:none!important;filter:none!important;text-shadow:none!important}
+@media(prefers-reduced-motion:reduce){body :is(#lyric-stage,.style-preview-stage)[data-style^=game-] .lyric-line :is(.lyric-word[data-word-state],.lyric-char){transform:none!important;clip-path:none!important;filter:none!important;text-shadow:none!important}}
