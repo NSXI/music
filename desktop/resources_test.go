@@ -66,7 +66,8 @@ func TestWorkerBudgetSerializesAndCancels(t *testing.T) {
 }
 func TestBudgetAppliedToOwnedHiddenWorker(t *testing.T) {
 	s := testStudio(t)
-	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
+	// A low-priority PowerShell worker can take several seconds to start on a busy CI host.
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	cmd := hiddenCommand(ctx, "powershell.exe", "-NoLogo", "-NoProfile", "-NonInteractive", "-WindowStyle", "Hidden", "-Command", "Start-Sleep -Milliseconds 600")
 	if err := cmd.Start(); err != nil {
