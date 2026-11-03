@@ -61,6 +61,9 @@ func (s *Studio) SaveLyricsText(id, text string, timed bool) error {
 	return e
 }
 func (s *Studio) autoAlign(id string) {
+	if !s.GetState().Preferences.AutoAlign {
+		return
+	}
 	if !s.alignmentReady() {
 		return
 	}

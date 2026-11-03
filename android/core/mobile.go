@@ -40,7 +40,11 @@ func mobileTask(ctx context.Context,kind string,input []byte)([]byte,error){
  select{case result:=<-done:if result.Error!=""{return nil,errors.New(result.Error)};return result.Data,nil;case <-ctx.Done():return nil,ctx.Err()}
 }
 func mobileCommand(ctx context.Context,name string,args ...string)*exec.Cmd {
- if name=="yt-dlp" {args=append([]string{mobilePaths["ytdlpZip"],"--js-runtimes","quickjs:"+mobilePaths["quickjs"],"--ffmpeg-location",mobilePaths["ffmpeg"]},args...);name=mobilePaths["python"]} else if p:=mobilePaths[name];p!="" {name=p}
+ if name=="yt-dlp" {
+  // Desktop's tools directory must not override the Android executable path.
+  filtered:=make([]string,0,len(args));for i:=0;i<len(args);i++{if args[i]=="--ffmpeg-location"&&i+1<len(args){i++;continue};if strings.HasPrefix(args[i],"--ffmpeg-location="){continue};filtered=append(filtered,args[i])}
+  args=append([]string{mobilePaths["ytdlpZip"],"--js-runtimes","quickjs:"+mobilePaths["quickjs"],"--ffmpeg-location",mobilePaths["ffmpeg"]},filtered...);name=mobilePaths["python"]
+ } else if p:=mobilePaths[name];p!="" {name=p}
  cmd:=exec.CommandContext(ctx,name,args...);cmd.Env=withWorkerEnvironment(os.Environ(),mobileEnv);return cmd
 }
 func mobileJSON(value any)*C.char{b,e:=json.Marshal(value);if e!=nil{b=[]byte(`{"ok":false,"error":"JSON failure"}`)};return C.CString(string(b))}
@@ -81,7 +85,7 @@ func nawa_complete(id,data,errorText *C.char){workMu.Lock();done:=workWaiting[C.
 func nawa_free(value *C.char){C.free(unsafe.Pointer(value))}
 func (s *Studio) MobileImport(paths []string)(int,error){return s.importPaths(context.Background(),paths)}
 func (s *Studio) MobileProgress(kind string,progress float64,phase string){s.mu.Lock();defer s.mu.Unlock();if kind=="alignment"{s.alignState.Progress=progress;s.alignState.Phase=phase};if kind=="translation"{s.translationState.Progress=progress;s.translationState.Phase=phase}}
-func (s *Studio) MobileSummary() map[string]any {s.mu.Lock();defer s.mu.Unlock();pending:=len(s.state.AlignmentQueue)+len(s.state.TranslationQueue);workMu.Lock();pending+=len(workWaiting);workMu.Unlock();for _,j:=range s.state.Jobs{if j.Status=="working"||j.Status=="queued"{pending++}};return map[string]any{"pending":pending,"alignment":s.alignState.Running,"translation":s.translationState.Running,"folder":s.folderImport.Running}}
+func (s *Studio) MobileSummary() map[string]any {s.mu.Lock();defer s.mu.Unlock();pending:=len(s.state.AlignmentQueue)+len(s.state.TranslationQueue);workMu.Lock();pending+=len(workWaiting);workMu.Unlock();for _,j:=range s.state.Jobs{if j.Status=="working"||j.Status=="queued"||j.MetadataPending{pending++}};return map[string]any{"pending":pending,"alignment":s.alignState.Running,"translation":s.translationState.Running,"folder":s.folderImport.Running}}
 func (s *Studio) MobileWorkActive(id string)bool{workMu.Lock();defer workMu.Unlock();return workWaiting[id]!=nil}
 func (s *Studio) mobileExport(id string){t,ok:=s.task(id);if !ok{return};raw,_:=json.Marshal(map[string]any{"id":id,"paths":[]string{t.Path,t.Cover,t.Lyrics}});ctx,cancel:=context.WithTimeout(context.Background(),30*time.Minute);defer cancel();if _,e:=mobileTask(ctx,"export",raw);e!=nil{s.edit(id,func(t *Task){t.Warning="حُفظ الملف داخل التطبيق؛ تعذر تصديره إلى المجلد المختار / Export failed: "+e.Error()});s.mu.Lock();s.save();s.mu.Unlock()}}
 func (s *Studio) mobileStateJSON()json.RawMessage{s.mu.Lock();defer s.mu.Unlock();r:=s.state;r.SpotifyConnected=s.spotifyToken!="";r.MusixmatchConfigured=s.musixmatchKey!="";r.MetadataConfigured=map[string]bool{};for k,v:=range s.metadataKeys{r.MetadataConfigured[k]=v!=""};r.Resource=s.resourceState;r.Resource.Mode=normalizeResourceMode(s.state.Preferences.ResourceMode);r.FolderImport=s.folderImport;r.Alignment=s.alignState;r.Alignment.Ready=s.alignmentReady();r.Alignment.Pending=len(s.state.AlignmentQueue);r.Translation=s.translationState;r.Translation.Ready=s.translationReady();r.Translation.Pending=len(s.state.TranslationQueue);b,_:=json.Marshal(r);return b}

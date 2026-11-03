@@ -742,3 +742,6 @@ window.MADAR_EN={
 };
 
 Object.assign(window.MADAR_EN,{"107 أشكال عرض و15 حركة مستقلة، مع توقيت محفوظ محليًا.": "107 lyric styles and 15 motions, with timing saved locally.", "Kingdom Hearts · حوار النور": "Kingdom Hearts · Light dialogue", "Bloodborne · حبر الصياد": "Bloodborne · Hunter ink", "Persona 3 Reload · قصّ أزرق": "Persona 3 Reload · Blue cut"});
+
+// Lyrics workflow release copy
+Object.assign(window.MADAR_EN,{"الأفضل تلقائيًا · كلمات ثم سطور": "Best automatically · words, then lines", "مصادر الكلمات والتوقيت": "Lyrics and timing sources", "تبدأ المطابقة من صفحة الكلمات عندما تختار «اضبط التوقيت الآن». توقيت المصدر وإزاحتك اليدوية يبقيان محفوظين.": "Start alignment from the lyrics page when you choose Align timing now. Source timing and your manual offset stay saved.", "عند الجلب، نفضّل التوقيت الصريح للكلمات، ثم السطور، ثم النص. تُستخدم المصادر المفعّلة فقط وتُحفظ أفضل نتيجة مطابقة محليًا.": "Prefer explicit word timing, then line timing, then plain text. Only enabled sources are used, and the best matching result is saved locally."});

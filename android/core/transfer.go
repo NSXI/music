@@ -222,6 +222,7 @@ func (s *Studio) extractDownload(ctx context.Context, t Task, song Song, p Prefe
 		prefix := fmt.Sprintf("media-%d", attempt)
 		pattern := filepath.Join(dir, prefix+".%(ext)s")
 	args := []string{"--ignore-config", "--no-plugin-dirs", "--no-cache-dir", "--no-playlist", "--socket-timeout", "20", "--retries", "2", "--fragment-retries", "2", "--no-warnings", "--newline", "--no-color", "--progress-template", "download:%(progress)j", "--ffmpeg-location", mobilePaths["ffmpeg"], "--fixup", "never", "-f", selector, "-o", strings.ReplaceAll(pattern, "%", "%%"), "--", song.URL}
+		args = append([]string{"--write-info-json"}, args...)
 		// Keep the output extension template; escape only literal percent signs in its parent path.
 		for i, v := range args {
 			if v == strings.ReplaceAll(pattern, "%", "%%") {
@@ -247,7 +248,8 @@ func (s *Studio) extractDownload(ctx context.Context, t Task, song Song, p Prefe
 				Total    int64 `json:"total_bytes"`
 				Estimate int64 `json:"total_bytes_estimate"`
 			}
-			if json.Unmarshal(scanner.Bytes(), &v) == nil {
+			line := strings.TrimPrefix(scanner.Text(), "download:")
+			if json.Unmarshal([]byte(line), &v) == nil {
 				if v.Total <= 0 {
 					v.Total = v.Estimate
 				}
@@ -260,9 +262,35 @@ func (s *Studio) extractDownload(ctx context.Context, t Task, song Song, p Prefe
 			return "", ctx.Err()
 		}
 		if e == nil && readErr == nil {
+			// Reuse metadata already obtained for this download, avoiding another
+			// extractor process or a guess from the search result's filename.
+			if raw, er := os.ReadFile(filepath.Join(dir, prefix+".info.json")); er == nil && len(raw) <= 32<<20 && song.Provider == t.Song.Provider {
+				var info extractorInfo
+				if json.Unmarshal(raw, &info) == nil {
+					s.edit(t.ID, func(j *Task) {
+						if info.Track != "" {
+							j.Song.Title = info.Track
+						}
+						if info.Artist != "" {
+							j.Song.Artist = info.Artist
+						} else if j.Song.Artist == "" {
+							j.Song.Artist = info.Uploader
+						}
+						if info.Album != "" {
+							j.Song.Album = info.Album
+						}
+						if info.Duration > 0 {
+							j.Song.Duration = info.Duration
+						}
+						if art := extractorArtwork(song.Provider, &info); art != "" {
+							j.Song.Artwork = art
+						}
+					})
+				}
+			}
 			files, _ := filepath.Glob(filepath.Join(dir, prefix+".*"))
 			for _, f := range files {
-				if strings.HasSuffix(f, ".part") || strings.HasSuffix(f, ".ytdl") {
+				if strings.HasSuffix(f, ".part") || strings.HasSuffix(f, ".ytdl") || strings.HasSuffix(f, ".info.json") {
 					continue
 				}
 				if st, er := os.Stat(f); er == nil && st.Size() > 0 {

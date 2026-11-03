@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestAutomaticAlignmentQueueIsSavedAndDeduplicated(t *testing.T) {
+func TestAutomaticAlignmentDoesNotQueueWhileManualModeIsActive(t *testing.T) {
 	s := testStudio(t)
 	os.MkdirAll(filepath.Join(s.root, "tools", "aligner"), 0755)
 	os.MkdirAll(filepath.Join(s.root, "tools", "models"), 0755)
@@ -16,11 +16,11 @@ func TestAutomaticAlignmentQueueIsSavedAndDeduplicated(t *testing.T) {
 	s.autoAlign("waiting")
 	s.autoAlign("waiting")
 	s.autoAlign("active")
-	if len(s.state.AlignmentQueue) != 1 {
-		t.Fatalf("automatic queue duplicates: %v", s.state.AlignmentQueue)
+	if len(s.state.AlignmentQueue) != 0 {
+		t.Fatalf("automatic work started in manual mode: %v", s.state.AlignmentQueue)
 	}
 	r := NewStudio(s.root)
-	if len(r.state.AlignmentQueue) != 1 || r.state.AlignmentQueue[0] != "waiting" {
-		t.Fatal("alignment queue was not saved")
+	if len(r.state.AlignmentQueue) != 0 || r.state.Preferences.AutoAlign {
+		t.Fatal("automatic alignment was restored after restart")
 	}
 }

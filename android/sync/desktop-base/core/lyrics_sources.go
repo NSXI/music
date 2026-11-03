@@ -139,6 +139,8 @@ func lyricsRecordingMatch(song Song, title, artist string, duration float64) boo
 func (s *Studio) fetchLyricProvider(ctx context.Context, song Song, provider string) (LyricsRecord, error) {
 	empty := LyricsRecord{}
 	switch provider {
+	case "amll":
+		return s.fetchAMLL(ctx, song)
 	case "lrclib":
 		params := url.Values{"track_name": {song.Title}, "artist_name": {song.Artist}}
 		if song.Duration > 0 {
@@ -267,11 +269,20 @@ func (s *Studio) fetchLyricProvider(ctx context.Context, song Song, provider str
 					continue
 				}
 				var data struct {
+					YRC struct {
+						Lyric string `json:"lyric"`
+					} `json:"yrc"`
 					LRC struct {
 						Lyric string `json:"lyric"`
 					} `json:"lrc"`
 				}
-				if e := s.lyricsRequest(ctx, provider, "/api/song/lyric", url.Values{"id": {strconv.FormatInt(c.ID, 10)}, "lv": {"-1"}, "tv": {"-1"}, "kv": {"-1"}}, &data); e == nil && validLRC(data.LRC.Lyric, song.Duration) {
+				if e := s.lyricsRequest(ctx, provider, "/api/song/lyric", url.Values{"id": {strconv.FormatInt(c.ID, 10)}, "lv": {"-1"}, "tv": {"-1"}, "kv": {"-1"}, "yv": {"-1"}}, &data); e == nil {
+					if record, err := decodeYRC(data.YRC.Lyric, song); err == nil {
+						return record, nil
+					}
+					if !validLRC(data.LRC.Lyric, song.Duration) {
+						continue
+					}
 					return LyricsRecord{Title: song.Title, Artist: song.Artist, Duration: duration, Synced: data.LRC.Lyric}, nil
 				}
 			}
@@ -399,6 +410,10 @@ func (s *Studio) qqLyric(ctx context.Context, params url.Values, target any) err
 	return json.NewDecoder(io.LimitReader(res.Body, 2<<20)).Decode(target)
 }
 func (s *Studio) remoteLyricsFrom(ctx context.Context, song Song, provider string) (LyricsRecord, error) {
+	ctx, cancelAll := context.WithTimeout(ctx, 40*time.Second)
+	defer cancelAll()
+	automatic := provider == "" || provider == "auto"
+	bestSelection := automatic || provider == "auto-refresh"
 	if provider == "" || provider == "auto" {
 		if cached, e := s.readLyricCache(song); e == nil && (cached.Record.Synced != "" || cached.Record.Plain != "" || cached.Record.Instrumental) {
 			r := cached.Record
@@ -414,15 +429,40 @@ func (s *Studio) remoteLyricsFrom(ctx context.Context, song Song, provider strin
 	if provider != "" && provider != "auto" && provider != "auto-refresh" {
 		providers = []string{provider}
 	}
+	if bestSelection {
+		providers = preferredLyricProviders(providers)
+	}
+	prefetched := map[string]<-chan lyricFetchResult{}
+	if bestSelection {
+		prefetched = s.prefetchWordLyrics(ctx, song, providers)
+	}
 	var fallback LyricsRecord
+	bestRank := 0
 	var failures []string
 	for _, p := range providers {
+		if bestSelection && !wordLyricProvider(p) && bestRank >= 2 {
+			break
+		}
 		if ctx.Err() != nil {
+			if bestRank > 0 {
+				break
+			}
 			return fallback, ctx.Err()
 		}
-		run, cancel := context.WithTimeout(ctx, 12*time.Second)
-		r, e := s.fetchLyricProvider(run, song, p)
-		cancel()
+		var r LyricsRecord
+		var e error
+		if result, ok := prefetched[p]; ok {
+			select {
+			case value := <-result:
+				r, e = value.record, value.err
+			case <-ctx.Done():
+				e = ctx.Err()
+			}
+		} else {
+			run, cancel := context.WithTimeout(ctx, 12*time.Second)
+			r, e = s.fetchLyricProvider(run, song, p)
+			cancel()
+		}
 		if e != nil {
 			failures = append(failures, lyricProviderNames[p]+": "+e.Error())
 			continue
@@ -431,27 +471,43 @@ func (s *Studio) remoteLyricsFrom(ctx context.Context, song Song, provider strin
 		if r.Instrumental {
 			r.Synced = ""
 			r.Plain = ""
-			s.writeLyricCache(LyricCache{Song: song, Record: r, Words: r.Words})
-			return r, nil
+			r.Words = nil
 		}
-		if validLRC(r.Synced, song.Duration) {
-			if e = s.writeLyricCache(LyricCache{Song: song, Record: r, Words: r.Words}); e != nil {
-				return r, fmt.Errorf("الكلمات جُلبت ولكن تعذر حفظها: %w", e)
-			}
-			return r, nil
+		rank := lyricRecordRank(r, song)
+		if rank < 2 {
+			r.Synced = ""
+			r.Words = nil
 		}
-		r.Synced = ""
-		if r.Plain != "" && fallback.Plain == "" {
+		if rank > bestRank || rank == 1 && fallback.Instrumental && r.Plain != "" {
 			fallback = r
+			bestRank = rank
+		}
+		if rank == 4 || !bestSelection && rank > 0 || !wordLyricProvider(p) && rank >= 2 {
+			return s.cacheRemoteLyrics(song, r, automatic)
 		}
 	}
-	if fallback.Plain != "" {
-		if err := s.writeLyricCache(LyricCache{Song: song, Record: fallback, Words: fallback.Words}); err != nil {
-			return fallback, fmt.Errorf("الكلمات جُلبت ولكن تعذر حفظها: %w", err)
-		}
-		return fallback, nil
+	if bestRank > 0 {
+		return s.cacheRemoteLyrics(song, fallback, automatic)
 	}
 	return fallback, errors.New(strings.Join(failures, "؛ "))
+}
+
+// A late automatic fetch must not replace words/timing edited while it ran.
+func (s *Studio) cacheRemoteLyrics(song Song, record LyricsRecord, automatic bool) (LyricsRecord, error) {
+	s.translationMu.Lock()
+	defer s.translationMu.Unlock()
+	if automatic {
+		if cache, err := s.readLyricCache(song); err == nil && (cache.Record.Synced != "" || cache.Record.Plain != "" || cache.Record.Instrumental) {
+			record = cache.Record
+			record.Words = cache.Words
+			record.Cached = true
+			return record, nil
+		}
+	}
+	if err := s.writeLyricCache(LyricCache{Song: song, Record: record, Words: record.Words}); err != nil {
+		return record, fmt.Errorf("الكلمات جُلبت ولكن تعذر حفظها: %w", err)
+	}
+	return record, nil
 }
 func (s *Studio) FetchLyricsFrom(id, provider string) (LyricView, error) {
 	t, ok := s.task(id)

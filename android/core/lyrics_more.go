@@ -279,6 +279,10 @@ func (n *lyricXMLNode) attr(name string) string {
 	return ""
 }
 func (n *lyricXMLNode) text() string {
+	role := n.attr("role")
+	if role == "x-translation" || role == "x-roman" || role == "x-bg" {
+		return ""
+	}
 	var body strings.Builder
 	for _, part := range n.Parts {
 		if part.Child != nil {
@@ -323,6 +327,13 @@ func explicitTTMLWords(node *lyricXMLNode) []TimedWord {
 			continue
 		}
 		child := part.Child
+		if child.text() == "" {
+			continue
+		}
+		if nested := explicitTTMLWords(child); len(nested) > 0 {
+			result = append(result, nested...)
+			continue
+		}
 		start, startOK := lyricTime(child.attr("begin"))
 		end, endOK := lyricTime(child.attr("end"))
 		if child.Name == "span" && startOK && endOK && end > start && strings.TrimSpace(child.text()) != "" {
@@ -385,8 +396,8 @@ func decodeBetterTTML(raw string, song Song) (LyricsRecord, error) {
 				return
 			}
 			words := explicitTTMLWords(node)
-			for _, word := range words {
-				if word.Start < start-.01 || word.End > end+.01 {
+			for i, word := range words {
+				if word.Start < start-.01 || word.End > end+.01 || i > 0 && word.Start < words[i-1].Start {
 					words = nil
 					break
 				}

@@ -94,7 +94,7 @@ window.NawaMobile={invoke,send,
   let active=false;try{active=snapshot.jobs.some(t=>['queued','working'].includes(t.status))||snapshot.alignment?.running||snapshot.translation?.running||snapshot.folderImport?.running}catch{}
   const interval=active?950:playing?3000:2000;if(performance.now()-lastPoll<interval)return;lastPoll=performance.now();try{poll()}catch{}
  },
- back(){if(document.querySelector('.lyric-style-list,.font-picker-list')){document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));return true}const dialog=document.querySelector('dialog[open]');if(dialog){dialog.close();return true}if(window.madarFullscreen?.active){window.madarFullscreen.leave();return true}try{if(view!=='home'){navigate('home');return true}}catch{}return false},
+ back(){if(document.querySelector('.lyric-style-options,.lyric-style-list,.font-picker-list')){document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));return true}const dialog=document.querySelector('dialog[open]');if(dialog){dialog.close();return true}if(window.madarFullscreen?.active){window.madarFullscreen.leave();return true}try{if(view!=='home'){navigate('home');return true}}catch{}return false},
  modelProgress(percent){const out=document.getElementById('android-model-progress');if(out)out.textContent=percent+'%'},
  status(){return {loadToken,seekToken,position:clock(),playing,buffering,paused,pendingAudio:commands.size,pendingRPC:requests.size}}
 };

@@ -48,6 +48,21 @@ func (s *Studio) Search(query, provider string) (Result, error) {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Minute)
 	defer cancel()
+	s.searchMu.Lock()
+	if s.searchCancel != nil {
+		s.searchCancel()
+	}
+	s.searchGeneration++
+	generation := s.searchGeneration
+	s.searchCancel = cancel
+	s.searchMu.Unlock()
+	defer func() {
+		s.searchMu.Lock()
+		if s.searchGeneration == generation {
+			s.searchCancel = nil
+		}
+		s.searchMu.Unlock()
+	}()
 	var r Result
 	var e error
 	if strings.HasPrefix(query, "spotify:") {
@@ -108,6 +123,14 @@ func (s *Studio) Search(query, provider string) (Result, error) {
 	return s.remember(r), nil
 }
 
+func (s *Studio) CancelSearch() {
+	s.searchMu.Lock()
+	if s.searchCancel != nil {
+		s.searchCancel()
+	}
+	s.searchMu.Unlock()
+}
+
 type extractorInfo struct {
 	ID         string  `json:"id"`
 	Title      string  `json:"title"`
@@ -131,6 +154,16 @@ type extractorInfo struct {
 }
 
 func (s *Studio) extract(ctx context.Context, address string, flat bool, provider string) (Result, error) {
+	// Name searches can fan out to many sites. Bound the expensive Python
+	// extractors independently of the lightweight HTTP providers and playback.
+	if s.searchExtractSlots != nil {
+		select {
+		case s.searchExtractSlots <- struct{}{}:
+		case <-ctx.Done():
+			return Result{}, ctx.Err()
+		}
+		defer func() { <-s.searchExtractSlots }()
+	}
 	args := []string{"--ignore-config", "--no-plugin-dirs", "--no-cache-dir", "--no-warnings", "--socket-timeout", "20", "--retries", "1", "--dump-single-json", "--ignore-errors"}
 	if flat {
 		args = append(args, "--flat-playlist")
@@ -190,6 +223,9 @@ func (s *Studio) extract(ctx context.Context, address string, flat bool, provide
 		r.Tracks = append(r.Tracks, Song{Genres: cleanGenres(append(v.Genres, v.Genre)), ID: key(provider + v.ID + link), Title: title, Artist: artist, Album: v.Album, Duration: v.Duration, Artwork: artwork, Provider: provider, URL: link, Ref: v.ID})
 	}
 	add(&info)
+	if len(r.Tracks) == 0 && (err != nil || missing > 0 || info.Title == "") {
+		return r, fmt.Errorf("تعذر قراءة نتائج %s: %s", provider, trimError(stderr.Bytes()))
+	}
 	if r.Total == 0 {
 		r.Total = len(r.Tracks) + missing
 	}
@@ -253,7 +289,7 @@ type archiveMeta struct {
 
 func (s *Studio) archiveItem(ctx context.Context, id string) (Result, error) {
 	var m archiveMeta
-	if e := s.jsonGet(ctx, "https://archive.org/metadata/"+url.PathEscape(id), &m); e != nil {
+	if e := s.jsonGet(ctx, s.sourceEndpoint("archive", "https://archive.org")+"/metadata/"+url.PathEscape(id), &m); e != nil {
 		return Result{}, e
 	}
 	if bool(m.Metadata.NoDownload) {
@@ -316,8 +352,14 @@ func (s *Studio) archiveItem(ctx context.Context, id string) (Result, error) {
 	return r, nil
 }
 func (s *Studio) archiveSearch(ctx context.Context, q string) (Result, error) {
+	return s.archiveSearchKind(ctx, q, false)
+}
+func (s *Studio) archiveSearchKind(ctx context.Context, q string, flacOnly bool) (Result, error) {
 	clean := strings.ReplaceAll(q, `"`, "")
 	params := url.Values{"q": {`mediatype:audio AND (` + clean + `)`}, "output": {"json"}, "rows": {"8"}, "fl[]": {"identifier", "title"}}
+	if flacOnly {
+		params.Set("q", params.Get("q")+" AND format:FLAC")
+	}
 	var data struct {
 		Response struct {
 			Docs []struct {
@@ -326,7 +368,7 @@ func (s *Studio) archiveSearch(ctx context.Context, q string) (Result, error) {
 			} `json:"docs"`
 		} `json:"response"`
 	}
-	if e := s.jsonGet(ctx, "https://archive.org/advancedsearch.php?"+params.Encode(), &data); e != nil {
+	if e := s.jsonGet(ctx, s.sourceEndpoint("archive", "https://archive.org")+"/advancedsearch.php?"+params.Encode(), &data); e != nil {
 		return Result{}, e
 	}
 	r := Result{Title: q, Tracks: []Song{}, Complete: false}
@@ -336,11 +378,18 @@ func (s *Studio) archiveSearch(ctx context.Context, q string) (Result, error) {
 		}
 		a, e := s.archiveItem(ctx, d.ID)
 		if e == nil {
-			r.Tracks = append(r.Tracks, a.Tracks...)
+			for _, song := range a.Tracks {
+				if !flacOnly || strings.EqualFold(song.Codec, "FLAC") {
+					r.Tracks = append(r.Tracks, song)
+				}
+			}
 		}
 	}
 	r.Total = len(r.Tracks)
 	r.Notice = "نتائج صوتية من Internet Archive. راجع التسجيل والفنان قبل الإضافة."
+	if flacOnly {
+		r.Notice = "كتالوج FLAC من Internet Archive؛ الصيغة معلنة من المصدر ويُفحص الملف بعد التنزيل."
+	}
 	return r, nil
 }
 
@@ -543,10 +592,13 @@ func (s *Studio) resolve(ctx context.Context, song Song, p Preferences) ([]Song,
 }
 func (s *Studio) fetchCandidate(ctx context.Context, t Task, c Song, p Preferences) (string, error) {
 	if strings.HasPrefix(c.URL, "search:") {
+		s.edit(t.ID, func(j *Task) { j.Phase = "مطابقة تسجيل من " + c.Provider })
 		q := strings.TrimPrefix(c.URL, "search:")
 		var r Result
 		var e error
-		r, e = s.providerSearch(ctx, c.Provider, q)
+		searchCtx, cancelSearch := context.WithTimeout(ctx, 12*time.Second)
+		r, e = s.providerSearch(searchCtx, c.Provider, q)
+		cancelSearch()
 		if e != nil {
 			return "", e
 		}
@@ -569,6 +621,7 @@ func (s *Studio) fetchCandidate(ctx context.Context, t Task, c Song, p Preferenc
 		}
 		return "", errors.New(strings.Join(errs, "؛ "))
 	}
+	s.edit(t.ID, func(j *Task) { j.Phase = "تنزيل الصوت" })
 	switch c.Provider {
 	case "spotify":
 		return "", errors.New("Spotify مصدر بيانات؛ تتم محاولة المصادر البديلة تلقائيًا")

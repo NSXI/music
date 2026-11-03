@@ -13,6 +13,7 @@ import org.json.JSONObject
 import java.io.File
 import java.security.KeyStore
 import java.security.SecureRandom
+import java.security.MessageDigest
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import javax.crypto.Cipher
@@ -26,7 +27,12 @@ class NawaApp : Application() {
     val modelDownloading = java.util.concurrent.atomic.AtomicBoolean(false)
     val updater by lazy { AndroidUpdater(this) }
     val io = Executors.newFixedThreadPool(4)
+    val quick = Executors.newFixedThreadPool(2)
+    val interactive = Executors.newFixedThreadPool(2)
     private val workers = Executors.newFixedThreadPool(2)
+    private val probes = Executors.newSingleThreadExecutor()
+    private val translations = Executors.newSingleThreadExecutor()
+    private val alignments = Executors.newSingleThreadExecutor()
     lateinit var root: File
     lateinit var tools: File
     lateinit var processEnvironment: Map<String, String>
@@ -37,6 +43,7 @@ class NawaApp : Application() {
             try {
                 YoutubeDL.init(this); FFmpeg.getInstance().init(this)
                 tools = File(noBackupFilesDir,"youtubedl-android")
+                installBundledExtractor()
                 val bin = applicationInfo.nativeLibraryDir
                 processEnvironment = mapOf(
                     "LD_LIBRARY_PATH" to "${tools}/packages/python/usr/lib:${tools}/packages/ffmpeg/usr/lib",
@@ -53,7 +60,8 @@ class NawaApp : Application() {
                     while(true) {
                         val work = CoreBridge.poll()
                         if(work == null) { Thread.sleep(50); continue }
-                        workers.execute {
+                        val executor=when(work.getString("kind")){"probe"->probes;"translation"->translations;"alignment"->alignments;else->workers}
+                        executor.execute {
                             try { CoreBridge.complete(work.getString("id"), NativeWorkers(this).run(work.getString("kind"),work.getJSONObject("input").put("_workID",work.getString("id")))) }
                             catch(e: Exception) { CoreBridge.complete(work.getString("id"),error=e.message ?: "Native task failed") }
                         }
@@ -62,6 +70,19 @@ class NawaApp : Application() {
             } catch(e: Throwable) { startupError = e.message ?: e.javaClass.simpleName }
             finally { ready.countDown() }
         }
+    }
+    private fun installBundledExtractor() {
+        val manifest=JSONObject(assets.open("extractor/manifest.json").bufferedReader().use {it.readText()})
+        val expected=manifest.getString("sha256")
+        val destination=File(tools,"yt-dlp/yt-dlp");destination.parentFile!!.mkdirs()
+        fun digest(file: File): String {val hash=MessageDigest.getInstance("SHA-256");file.inputStream().use {input->val buffer=ByteArray(65536);while(true){val count=input.read(buffer);if(count<0)break;hash.update(buffer,0,count)}};return hash.digest().joinToString(""){"%02x".format(it)}}
+        if(destination.isFile&&destination.length()==manifest.getLong("bytes")&&digest(destination)==expected)return
+        val temporary=File(destination.parentFile,"nawa-extractor.partial")
+        try {
+            assets.open("extractor/yt-dlp").use {input->temporary.outputStream().use {output->input.copyTo(output)}}
+            check(temporary.length()==manifest.getLong("bytes")&&digest(temporary)==expected){"Extractor integrity check failed"}
+            check(temporary.renameTo(destination)){"Cannot install bundled extractor"}
+        } finally {temporary.delete()}
     }
     private fun masterKey(): String {
         val store = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }

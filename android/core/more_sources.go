@@ -44,12 +44,14 @@ func (s *Studio) providerSearch(ctx context.Context, provider, q string) (Result
 		return s.bandcampSearch(ctx, q)
 	case "archive":
 		return s.archiveSearch(ctx, q)
+	case "archive-flac":
+		return s.archiveSearchKind(ctx, q, true)
 	case "tidal":
 		return s.tidalSearch(ctx, q)
 	case "spotify":
 		return s.spotifySearch(ctx, q)
 	case "ytmusic":
-		return s.extract(ctx, "https://music.youtube.com/search?q="+url.QueryEscape(q), true, provider)
+		return s.extract(ctx, "ytsearch20:"+q, true, provider)
 	case "audius":
 		return s.audiusSearch(ctx, q)
 	case "hearthis":
@@ -177,7 +179,7 @@ func plainMetadata(text string) string {
 	return strings.TrimSpace(html.UnescapeString(regexp.MustCompile(`<[^>]*>`).ReplaceAllString(text, "")))
 }
 func (s *Studio) commonsSearch(ctx context.Context, q, title string) (Result, error) {
-	params := url.Values{"action": {"query"}, "format": {"json"}, "prop": {"imageinfo"}, "iiprop": {"url|size|mime|extmetadata"}}
+	params := url.Values{"action": {"query"}, "format": {"json"}, "prop": {"imageinfo"}, "iiprop": {"url|size|mime|mediatype|extmetadata"}}
 	if title != "" {
 		params.Set("titles", title)
 	} else {
@@ -191,13 +193,14 @@ func (s *Studio) commonsSearch(ctx context.Context, q, title string) (Result, er
 			Pages map[string]struct {
 				Title string `json:"title"`
 				Info  []struct {
-					URL      string  `json:"url"`
-					Page     string  `json:"descriptionurl"`
-					Thumb    string  `json:"thumburl"`
-					Size     int64   `json:"size"`
-					MIME     string  `json:"mime"`
-					Duration float64 `json:"duration"`
-					Metadata map[string]struct {
+					URL       string  `json:"url"`
+					Page      string  `json:"descriptionurl"`
+					Thumb     string  `json:"thumburl"`
+					Size      int64   `json:"size"`
+					MIME      string  `json:"mime"`
+					MediaType string  `json:"mediatype"`
+					Duration  float64 `json:"duration"`
+					Metadata  map[string]struct {
 						Value any `json:"value"`
 					} `json:"extmetadata"`
 				} `json:"imageinfo"`
@@ -213,7 +216,7 @@ func (s *Studio) commonsSearch(ctx context.Context, q, title string) (Result, er
 			continue
 		}
 		v := page.Info[0]
-		if !strings.HasPrefix(v.MIME, "audio/") || strings.Contains(strings.ToLower(v.MIME),"midi") {
+		if !strings.HasPrefix(v.MIME, "audio/") && !(v.MIME == "application/ogg" && strings.EqualFold(v.MediaType, "AUDIO")) || strings.Contains(strings.ToLower(v.MIME),"midi") {
 			continue
 		}
 		name := plainMetadata(fmt.Sprint(v.Metadata["ObjectName"].Value))

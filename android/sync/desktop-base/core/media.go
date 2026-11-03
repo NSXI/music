@@ -174,9 +174,11 @@ func (s *Studio) enrich(ctx context.Context, id string) {
 	if !ok || t.Path == "" {
 		return
 	}
-	s.edit(id, func(j *Task) { j.Phase = "الغلاف والكلمات" })
+	if !t.MetadataPending {
+		s.edit(id, func(j *Task) { j.Phase = "الغلاف والكلمات" })
+	}
 	base := strings.TrimSuffix(t.Path, filepath.Ext(t.Path))
-	cover := ""
+	cover := t.Cover
 	for _, ext := range []string{".jpg", ".jpeg", ".png"} {
 		candidate := base + ext
 		if _, err := readArtworkBytes(candidate); err == nil {
@@ -218,14 +220,14 @@ func (s *Studio) enrich(ctx context.Context, id string) {
 			cover = candidate
 		}
 	}
-	if cover == "" && !t.Local {
+	if cover == "" && t.Song.Artist != "فنان غير معروف" {
 		run, cancel := context.WithTimeout(ctx, 35*time.Second)
 		if fetched, err := s.AutoArtwork(run, t); err == nil {
 			cover = fetched
 		}
 		cancel()
 	}
-	if cover != "" && !t.Local {
+	if cover != "" && !t.Local && !t.MetadataPending {
 		ext := strings.ToLower(filepath.Ext(t.Path))
 		if ext == ".flac" || ext == ".mp3" || ext == ".m4a" {
 			tagged := base + ".tagged" + ext
@@ -251,7 +253,7 @@ func (s *Studio) enrich(ctx context.Context, id string) {
 			}
 		}
 	}
-	if lyrics == "" && !t.Local && s.GetState().Preferences.Lyrics {
+	if lyrics == "" && t.Song.Artist != "" && t.Song.Artist != "فنان غير معروف" && s.GetState().Preferences.Lyrics {
 		ly, e := s.remoteLyrics(ctx, t.Song)
 		if e == nil {
 			ext := ".txt"
@@ -272,8 +274,12 @@ func (s *Studio) enrich(ctx context.Context, id string) {
 	}
 	finalHash := fileHash(t.Path)
 	s.edit(id, func(j *Task) {
-		j.Cover = cover
-		j.Lyrics = lyrics
+		if j.Cover == t.Cover {
+			j.Cover = cover
+		}
+		if j.Lyrics == t.Lyrics {
+			j.Lyrics = lyrics
+		}
 		if cache, e := s.readLyricCache(t.Song); e == nil {
 			j.LyricsSource = cache.Record.Provider
 		}
@@ -351,19 +357,19 @@ func (s *Studio) LoadLyricsFile(id string) error {
 	if _, ok := s.task(id); !ok {
 		return errors.New("اختر مسارًا")
 	}
-	path, e := wr.OpenFileDialog(s.ctx, wr.OpenDialogOptions{Title: "اختيار كلمات LRC أو TXT", Filters: []wr.FileFilter{{DisplayName: "Lyrics", Pattern: "*.lrc;*.txt"}}})
+	path, e := wr.OpenFileDialog(s.ctx, wr.OpenDialogOptions{Title: "اختيار كلمات LRC / TTML / YRC / TXT", Filters: []wr.FileFilter{{DisplayName: "Lyrics", Pattern: "*.lrc;*.ttml;*.yrc;*.txt"}}})
 	if e != nil || path == "" {
 		return e
 	}
 	ext := strings.ToLower(filepath.Ext(path))
-	if ext != ".lrc" && ext != ".txt" {
-		return errors.New("اختر LRC أو TXT")
+	if ext != ".lrc" && ext != ".txt" && ext != ".ttml" && ext != ".yrc" {
+		return errors.New("اختر LRC / TTML / YRC / TXT")
 	}
 	b, e := os.ReadFile(path)
 	if e != nil {
 		return e
 	}
-	return s.SaveLyricsText(id, string(b), ext == ".lrc")
+	return s.SaveImportedLyrics(id, string(b), ext)
 }
 
 func (s *Studio) ImportFiles() (int, error) {
@@ -433,6 +439,14 @@ func (s *Studio) importPaths(ctx context.Context, paths []string) (int, error) {
 			continue
 		}
 		t := Task{LocalModified: st.ModTime().UnixNano(), ID: key(song.ID), Song: song, Status: "done", GenreChecked: true, Local: true, Source: "local", Path: path, Hash: h, Quality: q, Log: []string{"ملف أضفته من جهازك"}, Bytes: st.Size(), Total: st.Size()}
+		for _, ext := range []string{".lrc", ".txt"} {
+			sidecar := strings.TrimSuffix(path, filepath.Ext(path)) + ext
+			if info, err := os.Stat(sidecar); err == nil && info.Size() > 0 && info.Size() <= 2<<20 {
+				t.Lyrics = sidecar
+				t.LyricsSource = "local"
+				break
+			}
+		}
 		s.mu.Lock()
 		replaced := false
 		for i, existing := range s.state.Jobs {
@@ -448,7 +462,17 @@ func (s *Studio) importPaths(ctx context.Context, paths []string) (int, error) {
 		s.known[song.ID] = song
 		s.save()
 		s.mu.Unlock()
-		s.enrich(ctx, t.ID)
+		if t.Lyrics == "" {
+			for _, ext := range []string{".ttml", ".yrc"} {
+				file := strings.TrimSuffix(path, filepath.Ext(path)) + ext
+				if info, err := os.Stat(file); err == nil && info.Size() > 0 && info.Size() <= 2<<20 {
+					if raw, err := os.ReadFile(file); err == nil && s.SaveImportedLyrics(t.ID, string(raw), ext) == nil {
+						break
+					}
+				}
+			}
+		}
+		s.queueMetadata(t.ID)
 		s.edit(t.ID, func(j *Task) { j.Phase = "" })
 		n++
 	}

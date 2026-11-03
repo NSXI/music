@@ -159,7 +159,8 @@ class MainActivity : ComponentActivity() {
     inner class Bridge {
         @JavascriptInterface fun dispatch(id: String,method: String,argsJson: String) {
             if(!Regex("[a-zA-Z0-9-]{1,64}").matches(id))return
-            app.io.execute {
+            val executor=when(method){"Search","PreparePreview","PreparePlayback","DecodePlayback"->app.interactive;"GetState","Enqueue","Control","GetUpdateStatus","GetAppUpdateState","AndroidStatus","CancelSearch","CancelAlignment","CancelTranslation","CancelFolderImport"->app.quick;else->app.io}
+            executor.execute {
                 try {
                     val args=JSONArray(argsJson)
                     if(method in listOf("Enqueue","StartAlignment","StartTranslation","CacheLibraryLyrics","ImportFiles","AddLibraryFolder","RescanLibraryFolders","DownloadTimingModel","DownloadAppUpdate","OpenUpdatePage"))main.post { runCatching { androidx.core.content.ContextCompat.startForegroundService(this@MainActivity,WorkService.intent(this@MainActivity)) } }
@@ -175,9 +176,14 @@ class MainActivity : ComponentActivity() {
                             reply(id,CoreBridge.call(method,args))
                         }
                         "CancelFolderImport" -> { cancelled.set(true);reply(id,CoreBridge.call(method,args)) }
-                        "LoadLyricsFile" -> launchPicker(id,false,arrayOf("text/*","application/octet-stream")) { uris ->
-                            val text=contentResolver.openInputStream(uris.first())!!.bufferedReader(Charsets.UTF_8).use { it.readText() };check(text.length<=2000000){"ملف الكلمات كبير جدًا"}
-                            CoreBridge.call("SaveLyricsText",JSONArray().put(args.getString(0)).put(text).put(Regex("\\[\\d+:\\d+").containsMatchIn(text)));null
+                        "LoadLyricsFile" -> launchPicker(id,false,arrayOf("text/*","application/ttml+xml","application/xml","application/octet-stream")) { uris ->
+                            val text=contentResolver.openInputStream(uris.first())!!.bufferedReader(Charsets.UTF_8).use { reader ->
+                                val result=StringBuilder();val buffer=CharArray(4096)
+                                while(true){val n=reader.read(buffer);if(n<0)break;check(result.length+n<=2000000){"ملف الكلمات كبير جدًا"};result.append(buffer,0,n)}
+                                result.toString()
+                            }
+                            val extension=DocumentFile.fromSingleUri(this@MainActivity,uris.first())?.name?.substringAfterLast('.',"")?.lowercase() ?: "txt"
+                            CoreBridge.call("SaveImportedLyrics",JSONArray().put(args.getString(0)).put(text).put(extension));null
                         }
                         "GetFonts" -> reply(id,fonts())
                         "ImportFont" -> launchPicker(id,false,arrayOf("font/*","application/octet-stream")) { uris ->
@@ -268,7 +274,7 @@ class MainActivity : ComponentActivity() {
     }
     private fun copyTree(uri: Uri,dest: File) {
         val root=DocumentFile.fromTreeUri(this,uri) ?: error("المجلد غير متاح")
-        val extensions=setOf("flac","mp3","m4a","aac","wav","ogg","opus","aiff","aif","wma","ape","wv","dsf","dff","ac3","eac3","mka","mp4","alac","tta","webm","amr","m4b","tak","lrc","txt","jpg","jpeg","png")
+        val extensions=setOf("flac","mp3","m4a","aac","wav","ogg","opus","aiff","aif","wma","ape","wv","dsf","dff","ac3","eac3","mka","mp4","alac","tta","webm","amr","m4b","tak","lrc","txt","ttml","yrc","jpg","jpeg","png")
         val files=mutableListOf<Pair<DocumentFile,File>>()
         fun walk(doc: DocumentFile,dir: File,depth: Int) {
             check(depth<64){"Too many nested folders"};check(!cancelled.get()){"Import cancelled"}

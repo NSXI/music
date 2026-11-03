@@ -104,6 +104,9 @@ func (s *Studio) PreparePreview(id string, decode bool) (Preview, error) {
 		}
 		decode = decode || strings.Contains(info.Protocol, "m3u8") || strings.Contains(info.Protocol, "dash")
 		q = Quality{Codec: strings.ToUpper(info.Codec), Rate: int(info.Rate), Bitrate: int(info.ABR * 1000), Duration: song.Duration}
+		song.Codec = q.Codec
+		song.Bitrate = q.Bitrate
+		song.SampleRate = q.Rate
 	}
 	if song.Provider == "tidal" {
 		var e error

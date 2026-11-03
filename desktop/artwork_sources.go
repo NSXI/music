@@ -426,7 +426,18 @@ func (s *Studio) CacheSourceArtwork(id string) (ArtworkCandidate, error) {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
-	return s.cacheDirectArtwork(ctx, t.Song)
+	if t.Song.Artwork != "" {
+		if artwork, err := s.cacheDirectArtwork(ctx, t.Song); err == nil { return artwork, nil }
+	}
+	if t.Song.Artist == "" || t.Song.Artist == "ملف مباشر" || t.Song.Artist == "فنان غير معروف" {
+		return ArtworkCandidate{}, errors.New("لا توجد بيانات كافية لمطابقة غلاف")
+	}
+	result, err := s.searchArtwork(ctx, t.Song, false)
+	if err != nil { return ArtworkCandidate{}, err }
+	for _, candidate := range result.Candidates {
+		if candidate.Kind == "front" && candidate.Cached { return candidate, nil }
+	}
+	return ArtworkCandidate{}, errors.New("لا يتوفر غلاف مطابق محفوظ")
 }
 func readArtworkBytes(path string) ([]byte, error) {
 	f, err := os.Open(path)

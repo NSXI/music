@@ -13,6 +13,8 @@ import (
 )
 
 func (s *Studio) searchAll(ctx context.Context, query string) (Result, error) {
+	ctx, cancelAll := context.WithTimeout(ctx, 24*time.Second)
+	defer cancelAll()
 	names := append([]string{"soundcloud", "bandcamp", "archive"}, extraSources...)
 	if s.GetState().Preferences.TidalURL != "" {
 		names = append(names, "tidal")
@@ -28,7 +30,7 @@ func (s *Studio) searchAll(ctx context.Context, query string) (Result, error) {
 	channel := make(chan response, len(names))
 	for _, name := range names {
 		go func(provider string) {
-			run, cancel := context.WithTimeout(ctx, 80*time.Second)
+			run, cancel := context.WithTimeout(ctx, 18*time.Second)
 			defer cancel()
 			var r Result
 			var e error
@@ -38,7 +40,22 @@ func (s *Studio) searchAll(ctx context.Context, query string) (Result, error) {
 	}
 	out := Result{Title: query, Tracks: []Song{}, Complete: false, ProviderCounts: map[string]int{}, ProviderErrors: map[string]string{}}
 	for range names {
-		r := <-channel
+		var r response
+		select {
+		case r = <-channel:
+		case <-ctx.Done():
+			for _, name := range names {
+				if _, ok := out.ProviderCounts[name]; !ok {
+					if _, failed := out.ProviderErrors[name]; !failed {
+						out.ProviderErrors[name] = "انتهت مهلة المصدر؛ بقية النتائج متاحة"
+					}
+				}
+			}
+			if len(out.Tracks) == 0 {
+				return out, errors.New("انتهت مهلة البحث؛ جرّب مصدرًا محددًا أو رابطًا مباشرًا")
+			}
+			goto rankResults
+		}
 		if r.Error != nil {
 			out.ProviderErrors[r.Name] = r.Error.Error()
 			continue
@@ -46,8 +63,13 @@ func (s *Studio) searchAll(ctx context.Context, query string) (Result, error) {
 		out.ProviderCounts[r.Name] = len(r.Result.Tracks)
 		out.Tracks = append(out.Tracks, r.Result.Tracks...)
 	}
+rankResults:
 	sort.SliceStable(out.Tracks, func(i, j int) bool {
 		a, b := out.Tracks[i], out.Tracks[j]
+		as, bs := musicSearchScore(query, a), musicSearchScore(query, b)
+		if as != bs {
+			return as > bs
+		}
 		if norm(a.Title) == norm(b.Title) {
 			return a.Provider < b.Provider
 		}
@@ -62,6 +84,31 @@ func (s *Studio) searchAll(ctx context.Context, query string) (Result, error) {
 		return out, errors.New("لم تُرجع المصادر المتاحة نتائج. جرّب رابطًا مباشرًا أو راجع حالة المصادر.")
 	}
 	return out, nil
+}
+
+func musicSearchScore(query string, song Song) int {
+	text := norm(song.Artist + " " + song.Title)
+	title := norm(song.Title)
+	q := norm(query)
+	score := 0
+	if title == q {
+		score += 100
+	}
+	if text == q || norm(song.Title+" "+song.Artist) == q {
+		score += 140
+	}
+	for _, token := range strings.Fields(q) {
+		if strings.Contains(text, token) {
+			score += 12
+		} else {
+			score -= 8
+		}
+	}
+	switch strings.ToLower(song.Codec) {
+	case "flac", "wav", "aiff", "alac":
+		score += 3
+	}
+	return score
 }
 
 type formatInfo struct {
@@ -98,7 +145,12 @@ func (s *Studio) InspectSong(id string) (Song, error) {
 			return song, errors.New(trimError(errText.Bytes()))
 		}
 		var data struct {
-			Thumbnail  string `json:"thumbnail"`
+			Title      string  `json:"title"`
+			Track      string  `json:"track"`
+			Artist     string  `json:"artist"`
+			Album      string  `json:"album"`
+			Duration   float64 `json:"duration"`
+			Thumbnail  string  `json:"thumbnail"`
 			Thumbnails []struct {
 				URL string `json:"url"`
 			} `json:"thumbnails"`
@@ -110,6 +162,20 @@ func (s *Studio) InspectSong(id string) (Song, error) {
 		}
 		if e := json.Unmarshal(out.Bytes(), &data); e != nil {
 			return song, e
+		}
+		if data.Track != "" {
+			song.Title = data.Track
+		} else if data.Title != "" {
+			song.Title = data.Title
+		}
+		if data.Artist != "" {
+			song.Artist = data.Artist
+		}
+		if data.Album != "" {
+			song.Album = data.Album
+		}
+		if data.Duration > 0 {
+			song.Duration = data.Duration
 		}
 		if data.Thumbnail != "" {
 			song.Artwork = data.Thumbnail

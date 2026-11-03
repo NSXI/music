@@ -4,6 +4,7 @@
 @media(max-width:760px){.lyric-style-preview{width:240px!important}.style-preview-content,.style-preview-content canvas{height:136px}}
 
 .style-preview-translation{display:block!important;font-size:.7em!important;line-height:1.6;opacity:.85;margin-top:14px;color:var(--muted)}
+.lyric-style-options{display:flex;flex-direction:column}.lyric-style-options>.style-picker-search{flex-shrink:0}.lyric-style-options>.style-picker-results{min-height:0;flex:1;overscroll-behavior:contain;touch-action:pan-y}
 .style-preview-stage{width:100%!important;padding:16px 10px!important}
 .style-preview-stage .lyric-line{width:100%!important;display:block!important;text-align:center!important;font-size:20px!important;transform:none!important;filter:none!important;background:transparent!important;box-shadow:none!important;border:0!important}
 .style-preview-stage .lyric-content{display:block!important;max-width:100%!important;white-space:normal!important;text-align:center!important;text-wrap:balance}

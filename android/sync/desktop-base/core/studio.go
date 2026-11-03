@@ -50,28 +50,29 @@ type Quality struct {
 	Duration float64 `json:"duration"`
 }
 type Task struct {
-	LocalModified int64    `json:"localModified,omitempty"`
-	GenreChecked  bool     `json:"genreChecked,omitempty"`
-	LyricsSource  string   `json:"lyricsSource,omitempty"`
-	ID            string   `json:"id"`
-	Song          Song     `json:"song"`
-	Status        string   `json:"status"`
-	Phase         string   `json:"phase"`
-	Error         string   `json:"error"`
-	Bytes         int64    `json:"bytes"`
-	Total         int64    `json:"total"`
-	RetryAt       int64    `json:"retryAt"`
-	ETag          string   `json:"etag,omitempty"`
-	TransferURL   string   `json:"transferUrl,omitempty"`
-	Path          string   `json:"path"`
-	Cover         string   `json:"cover"`
-	Lyrics        string   `json:"lyrics"`
-	Warning       string   `json:"warning"`
-	Hash          string   `json:"hash"`
-	Source        string   `json:"source"`
-	Log           []string `json:"log"`
-	Quality       Quality  `json:"quality"`
-	Local         bool     `json:"local"`
+	MetadataPending bool     `json:"metadataPending,omitempty"`
+	LocalModified   int64    `json:"localModified,omitempty"`
+	GenreChecked    bool     `json:"genreChecked,omitempty"`
+	LyricsSource    string   `json:"lyricsSource,omitempty"`
+	ID              string   `json:"id"`
+	Song            Song     `json:"song"`
+	Status          string   `json:"status"`
+	Phase           string   `json:"phase"`
+	Error           string   `json:"error"`
+	Bytes           int64    `json:"bytes"`
+	Total           int64    `json:"total"`
+	RetryAt         int64    `json:"retryAt"`
+	ETag            string   `json:"etag,omitempty"`
+	TransferURL     string   `json:"transferUrl,omitempty"`
+	Path            string   `json:"path"`
+	Cover           string   `json:"cover"`
+	Lyrics          string   `json:"lyrics"`
+	Warning         string   `json:"warning"`
+	Hash            string   `json:"hash"`
+	Source          string   `json:"source"`
+	Log             []string `json:"log"`
+	Quality         Quality  `json:"quality"`
+	Local           bool     `json:"local"`
 }
 type Preferences struct {
 	ResourceMode           string   `json:"resourceMode,omitempty"`
@@ -118,6 +119,10 @@ type Result struct {
 	Total          int               `json:"total"`
 }
 type Studio struct {
+	searchMu               sync.Mutex
+	searchCancel           context.CancelFunc
+	searchGeneration       uint64
+	metadataWake           chan struct{}
 	analysisSlot           chan struct{}
 	resourceState          ResourceState
 	metadataKeys           map[string]string
@@ -133,6 +138,7 @@ type Studio struct {
 	previews               map[string]previewSession
 	previewSongs           map[string]Song
 	sourceTestBases        map[string]string
+	searchExtractSlots     chan struct{}
 	translationMu          sync.Mutex
 	translationState       TranslationState
 	translationCancel      context.CancelFunc
@@ -164,8 +170,8 @@ type Studio struct {
 }
 
 func NewStudio(root string) *Studio {
-	s := &Studio{root: root, client: &http.Client{Timeout: 90 * time.Second}, known: map[string]Song{}, wake: make(chan struct{}, 1), done: make(chan struct{})}
-	s.state = Snapshot{Root: root, Jobs: []Task{}, Preferences: Preferences{AutoTranslate: true, TranslationTarget: "ar", TranslationSource: "auto", Folder: filepath.Join(root, "Downloads"), Lyrics: true, AutoMatch: true, AutoAlign: true, AlignmentLanguage: "auto", LyricProviders: append([]string{}, defaultLyricProviders...)}}
+	s := &Studio{root: root, client: &http.Client{Timeout: 90 * time.Second}, known: map[string]Song{}, wake: make(chan struct{}, 1), metadataWake: make(chan struct{}, 1), searchExtractSlots: make(chan struct{}, 2), done: make(chan struct{})}
+	s.state = Snapshot{Root: root, Jobs: []Task{}, Preferences: Preferences{AutoTranslate: true, TranslationTarget: "ar", TranslationSource: "auto", Folder: filepath.Join(root, "Downloads"), Lyrics: true, AutoMatch: true, AutoAlign: false, AlignmentLanguage: "auto", LyricProviders: append([]string{}, defaultLyricProviders...)}}
 	raw, err := os.ReadFile(filepath.Join(root, "data", "library.json"))
 	if err == nil {
 		loaded := s.state
@@ -250,6 +256,24 @@ func NewStudio(root string) *Studio {
 		s.state.Preferences.MetadataSourcesVersion = 2
 	}
 
+	if s.state.Preferences.MetadataSourcesVersion < 3 {
+		order := []string{}
+		seen := map[string]bool{}
+		for _, id := range s.state.Preferences.LyricProviders {
+			if !seen[id] {
+				order = append(order, id)
+				seen[id] = true
+			}
+		}
+		for _, id := range []string{"amll", "betterlyrics"} {
+			if !seen[id] {
+				order = append(order, id)
+				seen[id] = true
+			}
+		}
+		s.state.Preferences.LyricProviders = order
+		s.state.Preferences.MetadataSourcesVersion = 3
+	}
 	for i := range s.state.Jobs {
 		t := &s.state.Jobs[i]
 		if t.Status == "working" {
@@ -258,6 +282,10 @@ func NewStudio(root string) *Studio {
 		t.Phase = ""
 		s.known[t.Song.ID] = t.Song
 	}
+	// Timing analysis starts only from an explicit user action. Keep existing
+	// source timing, accepted results and manual offsets; drop old auto work.
+	s.state.Preferences.AutoAlign = false
+	s.state.AlignmentQueue = nil
 	s.loadAuth()
 	return s
 }
@@ -271,6 +299,11 @@ func (s *Studio) start(ctx context.Context) {
 	go s.nextAlignment()
 	go s.nextTranslation()
 	go s.refreshLibraryGenres(run)
+	go s.metadataLoop(run)
+	select {
+	case s.metadataWake <- struct{}{}:
+	default:
+	}
 	s.signal()
 }
 func (s *Studio) stop(_ context.Context) {
@@ -525,6 +558,7 @@ func (s *Studio) Control(id, action string) error {
 	return nil
 }
 func (s *Studio) SetPreferences(p Preferences) error {
+	p.AutoAlign = false
 	if p.TranslationTarget == "" {
 		p.TranslationTarget = "ar"
 	}
@@ -698,13 +732,23 @@ func (s *Studio) execute(ctx context.Context, t Task) error {
 	var bestPath string
 	var bestQuality Quality
 	var bestSource Song
+	var losslessDeadline time.Time
 	for _, c := range candidates {
 		if ctx.Err() != nil {
 			return ctx.Err()
 		}
+		if bestPath != "" && !losslessDeadline.IsZero() && time.Now().After(losslessDeadline) {
+			break
+		}
 		s.record(t.ID, "محاولة "+c.Provider)
 		s.edit(t.ID, func(j *Task) { j.Source = c.Provider; j.Phase = "تنزيل الصوت" })
-		path, e := s.fetchCandidate(ctx, t, c, p)
+		attemptCtx := ctx
+		cancelAttempt := func() {}
+		if bestPath != "" {
+			attemptCtx, cancelAttempt = context.WithDeadline(ctx, losslessDeadline)
+		}
+		path, e := s.fetchCandidate(attemptCtx, t, c, p)
+		cancelAttempt()
 		if e != nil {
 			failures = append(failures, c.Provider+": "+e.Error())
 			s.record(t.ID, failures[len(failures)-1])
@@ -733,7 +777,10 @@ func (s *Studio) execute(ctx context.Context, t Task) error {
 				continue
 			}
 		}
-		if !q.Lossless && p.AutoMatch && len(candidates) > 1 {
+		if !q.Lossless && p.AutoMatch && len(candidates) > 1 && c.Provider != t.Song.Provider {
+			if losslessDeadline.IsZero() {
+				losslessDeadline = time.Now().Add(20 * time.Second)
+			}
 			if bestPath == "" || q.Bitrate > bestQuality.Bitrate {
 				hold := filepath.Join(s.root, "data", "partials", t.ID+"-best-lossy"+mediaExt(q.Codec))
 				os.Remove(hold)
@@ -757,6 +804,9 @@ func (s *Studio) execute(ctx context.Context, t Task) error {
 	return errors.New(strings.Join(failures, "\n"))
 }
 func (s *Studio) commitAudio(ctx context.Context, t Task, c Song, path string, q Quality, p Preferences) error {
+	if latest, ok := s.task(t.ID); ok {
+		t.Song = latest.Song
+	}
 	var e error
 	ext := mediaExt(q.Codec)
 	name := safe(t.Song.Artist+" - "+t.Song.Title) + " [" + t.ID + "]"
@@ -797,6 +847,8 @@ func (s *Studio) commitAudio(ctx context.Context, t Task, c Song, path string, q
 	s.edit(t.ID, func(j *Task) {
 		j.Path = final
 		j.Quality = q
+		j.Status = "done"
+		j.Phase = ""
 		j.Hash = hash
 		j.Source = c.Provider
 		if info, e := os.Stat(final); e == nil {
@@ -807,8 +859,7 @@ func (s *Studio) commitAudio(ctx context.Context, t Task, c Song, path string, q
 			j.Song.Duration = q.Duration
 		}
 	})
-	s.enrich(ctx, t.ID)
-	s.refreshJobGenres(ctx, t.ID)
+	s.queueMetadata(t.ID)
 	s.cleanPartials(t.ID)
 	s.record(t.ID, "تم التحقق وحفظ "+q.Codec)
 	return nil

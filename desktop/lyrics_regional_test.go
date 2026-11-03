@@ -152,7 +152,7 @@ func TestRegionalLyricsFallbackAndSourceUpgrade(t *testing.T) {
 			t.Fatal("new source missing or duplicated", id, seen)
 		}
 	}
-	if s.state.Preferences.LyricProviders[0] != "lrclib" || s.state.Preferences.MetadataSourcesVersion != 2 {
+	if s.state.Preferences.LyricProviders[0] != "lrclib" || s.state.Preferences.MetadataSourcesVersion != 3 || seen["amll"] != 1 {
 		t.Fatal("upgrade changed order or lost its version")
 	}
 	s.save()

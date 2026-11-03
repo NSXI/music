@@ -1,4 +1,5 @@
 .lyric-font-trigger{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:43px;width:100%;padding:10px 13px;border:1px solid var(--line);text-align:start;background:var(--panel)}
+.font-picker-list{display:flex;flex-direction:column}.font-picker-list>.font-picker-search{flex-shrink:0}.font-picker-list>.font-picker-options{min-height:0;flex:1;overscroll-behavior:contain;touch-action:pan-y}
 .lyric-font-trigger>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.lyric-font-trigger i{font-style:normal}
 .font-preview-card{display:block;min-width:0;padding:14px 12px;margin-top:10px;border:1px solid var(--line);background:var(--panel);border-radius:var(--button-radius)}
 .font-preview-caption{display:block;color:var(--muted);font:400 11px/1.5 'Segoe UI',Tahoma,sans-serif;margin-bottom:3px}
