@@ -19,6 +19,7 @@ import (
 )
 
 type AlignmentReport struct {
+	Accepted           bool    `json:"accepted,omitempty"`
 	Coverage           float64 `json:"coverage"`
 	MeanProbability    float64 `json:"meanProbability"`
 	Words              int     `json:"words"`
@@ -388,10 +389,20 @@ func (s *Studio) ApplyAlignment(id string) error {
 		}
 	}
 	record := LyricsRecord{Title: t.Song.Title, Artist: t.Song.Artist, Album: t.Song.Album, Duration: t.Song.Duration, Synced: result.LRC, Plain: stripLyricText(result.LRC), Provider: "local-align"}
+	result.Report.Accepted = true
 	if e = s.writeLyricCache(LyricCache{Song: t.Song, Record: record, Words: result.Lines, Alignment: &result.Report}); e != nil {
 		return e
 	}
 	_, e = s.persistLyricView(t, record)
+	if e == nil {
+		s.mu.Lock()
+		if s.alignState.TaskID == id {
+			report := result.Report
+			s.alignState.Report = &report
+			s.alignState.Phase = "توقيت معتمد باختيارك"
+		}
+		s.mu.Unlock()
+	}
 	return e
 }
 func (s *Studio) RestoreLyrics(id string) error {

@@ -11,6 +11,32 @@ import (
 func validAlignmentFixture() alignmentOutput {
 	return alignmentOutput{LRC: fixtureLRC, Original: fixtureLRC, OriginalTimed: true, OriginalSource: "fixture", Report: AlignmentReport{Refined: true, TextMatched: true, CharacterTiming: "visual-within-word", ResolutionSeconds: .02}, Lines: []WordLine{{Start: .1, End: .4, Text: "First test line", Words: []TimedWord{{Text: "First", Start: .1, End: .2, Probability: .9}, {Text: " test", Start: .2, End: .3, Probability: .9}, {Text: " line", Start: .3, End: .4, Probability: .9}}}, {Start: .6, End: .95, Text: "Second test line", Words: []TimedWord{{Text: "Second", Start: .6, End: .7, Probability: .9}, {Text: " test", Start: .7, End: .8, Probability: .9}, {Text: " line", Start: .8, End: .95, Probability: .9}}}}}
 }
+func TestReviewedAlignmentAcceptanceIsPersisted(t *testing.T) {
+	s := testStudio(t)
+	task := lyricTask(t, s)
+	if e := s.SaveLyricsText(task.ID, fixtureLRC, true); e != nil {
+		t.Fatal(e)
+	}
+	r := validAlignmentFixture()
+	r.Report.NeedsReview = true
+	dir := filepath.Join(s.root, "data", "alignment")
+	os.MkdirAll(dir, 0755)
+	raw, _ := json.Marshal(r)
+	if e := os.WriteFile(filepath.Join(dir, task.ID+"-result.json"), raw, 0600); e != nil {
+		t.Fatal(e)
+	}
+	s.alignState = AlignmentState{TaskID: task.ID, Report: &r.Report}
+	if e := s.ApplyAlignment(task.ID); e != nil {
+		t.Fatal(e)
+	}
+	cache, e := s.readLyricCache(task.Song)
+	if e != nil || cache.Alignment == nil || !cache.Alignment.Accepted || !cache.Alignment.NeedsReview {
+		t.Fatal("human acceptance or original quality report lost", e)
+	}
+	if s.GetState().Alignment.Report == nil || !s.GetState().Alignment.Report.Accepted {
+		t.Fatal("UI still offers to accept the same result")
+	}
+}
 func TestAlignmentRejectsMalformedWordsAndText(t *testing.T) {
 	if e := validateAlignment(validAlignmentFixture(), 1); e != nil {
 		t.Fatal(e)
