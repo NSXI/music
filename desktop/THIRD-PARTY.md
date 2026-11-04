@@ -95,3 +95,8 @@ frontend/theme-logos/sources.json records source URLs, sizes and SHA256 hashes. 
 The three game theme designs use bundled offline font files and retain notices under `frontend/game-themes`. KHMenu and KHMenuBoldItalic are Televo's faithful recreations from [Kingdom Hearts Re:Collection](https://github.com/Televo/kingdom-hearts-recollection); author notes are retained. EB Garamond, Amiri, Noto Sans Arabic and Barlow Semi Condensed use their included SIL Open Font License notices. Adobe Garamond is used only through an installed local font if present; its commercial font file is not redistributed. Barlow is a disclosed visual alternative for Reload, not the original licensed Rodin.
 
 Makoto's portrait is from https://p3re.jp/ ; the KHII promotional image is from https://www.jp.square-enix.com/kingdom/khhd1_2/ ; Bloodborne promotional artwork is from the official PlayStation listing. Exact URLs, byte lengths and SHA-256 are in `frontend/game-themes/sources.json`. Small vector symbols and UI motions are independent interpretations. Game images/logos/trademarks belong to their owners and imply no affiliation. Existing user album covers are preserved. The animations adapt dialogue/message/menu styles to the app's audio clock; no extracted game engine animations or independent lyric scheduler are shipped.
+
+
+## QR Code generator · Project Nayuki
+
+`frontend/qrcodegen.js`: QR Code generator library by Project Nayuki, MIT License. Original copyright and full MIT grant are retained in the file header. Upstream: https://www.nayuki.io/page/qr-code-generator-library .

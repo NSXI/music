@@ -149,6 +149,8 @@ func (s *Studio) transfer(ctx context.Context, t Task, address string) (string, 
 		buf := make([]byte, 128*1024)
 		n := offset
 		lastUpdate := time.Now()
+		transferStarted := time.Now()
+		limit := s.downloadPolicy().BytesPerSecond
 		var re error
 		for {
 			if ctx.Err() != nil {
@@ -166,6 +168,10 @@ func (s *Studio) transfer(ctx context.Context, t Task, address string) (string, 
 				if written != count {
 					re = io.ErrShortWrite
 					break
+				}
+				if limit > 0 {
+					delay := time.Duration(float64(n-offset)/float64(limit)*float64(time.Second))-time.Since(transferStarted)
+					if delay > 0 { timer:=time.NewTimer(delay);select {case <-ctx.Done():timer.Stop();re=ctx.Err();case <-timer.C:};if re!=nil{break} }
 				}
 			}
 			if time.Since(lastUpdate) > 200*time.Millisecond {
@@ -223,6 +229,7 @@ func (s *Studio) extractDownload(ctx context.Context, t Task, song Song, p Prefe
 		pattern := filepath.Join(dir, prefix+".%(ext)s")
 		args := []string{"--ignore-config", "--no-plugin-dirs", "--no-cache-dir", "--no-playlist", "--socket-timeout", "20", "--retries", "2", "--fragment-retries", "2", "--no-warnings", "--newline", "--no-color", "--progress-template", "download:%(progress)j", "--ffmpeg-location", filepath.Join(s.root, "tools"), "--fixup", "never", "-f", selector, "-o", strings.ReplaceAll(pattern, "%", "%%"), "--", song.URL}
 		args = append([]string{"--write-info-json"}, args...)
+		if limit:=s.downloadPolicy().BytesPerSecond;limit>0 { args=append([]string{"--limit-rate",strconv.FormatInt(limit,10)},args...) }
 		// Keep the output extension template; escape only literal percent signs in its parent path.
 		for i, v := range args {
 			if v == strings.ReplaceAll(pattern, "%", "%%") {

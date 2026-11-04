@@ -68,18 +68,19 @@ Object.defineProperties(element,{
  pause:{value:()=>{position=clock();paused=true;playing=false;at=performance.now();schedule();send('pause');emit('pause');paint()}},
  load:{value:()=>{}},error:{get:()=>lastError?{message:lastError}:null}
 });
-window.NawaMobile={invoke,send,
+window.NawaMobile={invoke,send,syncQueue:queue,
  async reply(id){const pending=requests.get(id);if(!pending)return;requests.delete(id);try{const r=await fetch('/native-response/'+encodeURIComponent(id),{cache:'no-store'}).then(r=>r.json());if(!r.ok)throw new Error(r.error||'Android operation failed');pending.resolve(r.result)}catch(error){pending.reject(error)}},
  audioReply(id,state,error){const pending=commands.get(id);if(!pending)return;commands.delete(id);clearTimeout(pending.timer);if(error){pending.reject(new Error(error));return}if(pending.token===loadToken&&state)this.state(state);pending.resolve(state)},
- fx(value){position=clock();at=performance.now();send('fx',value)},
+ fx(value){position=clock();at=performance.now();const keys=['volume','speed','preservePitch','pitch','preamp','eq','reverb','width','bypass','shuffle','repeat','normalizeVolume','normalizationGain','crossfade'];send('fx',Object.fromEntries(keys.filter(k=>value[k]!==undefined).map(k=>[k,value[k]])))},
  state(s){
   if(!source&&s.id){loadToken=Number(s.loadToken);seekToken=Number(s.seekToken)||0;source=s.url||''}
   if(Number(s.loadToken)!==loadToken||Number(s.seekToken||0)<seekToken||Number(s.sampledAt||0)<sampleAt)return;
+  window.nawaV2Playback?.outputState(s);
   sampleAt=Number(s.sampledAt)||0;
   const previous=paused,wasBuffering=buffering,oldLength=length;
   const epoch=Number(s.timelineRevision)||0;if(epoch!==timelineRevision||s.id!==lastID){clockFloor=Math.max(0,Number(s.position)||0);timelineRevision=epoch}
   position=Math.max(0,Number(s.position)||0);length=Math.max(0,Number(s.duration)||0);paused=Boolean(s.paused);playing=Boolean(s.playing);buffering=Boolean(s.buffering);rate=Number(s.speed)||1;at=performance.now();
-  if(s.id&&s.id!==lastID){try{const track=taskByID(s.id);if(track){lastID=s.id;if(current?.id!==track.id){current={...track};ui.lyricOffset=Number(ui.lyricOffsets?.[track.id]||0);updateNow();if(view==='lyrics'||view==='player')render();loadLyrics(false)}}}catch{}}
+  if(s.id&&s.id!==lastID){source=s.url||source;queueSignature='';try{const track=taskByID(s.id);if(track){lastID=s.id;if(current?.id!==track.id){current={...track};ui.lyricOffset=Number(ui.lyricOffsets?.[track.id]||0);window.nawaV2Settings?.applyTrackDesign();updateNow();if(view==='lyrics'||view==='player')render();loadLyrics(false)}}}catch{}}
   if(length&&oldLength!==length){emit('loadedmetadata');emit('durationchange')}
   if(previous!==paused)emit(paused?'pause':'play');if(wasBuffering!==buffering)emit(buffering?'waiting':'playing');
   emit('timeupdate');paint();schedule();
@@ -87,7 +88,7 @@ window.NawaMobile={invoke,send,
   if(s.error&&s.error!==lastError){lastError=s.error;emit('error')}
  },
  audioError(message){lastError=message;try{toast(message)}catch{}},
- suspend(){position=clock();at=performance.now();suspended=true;schedule();try{window.madarVerci?.suspend?.();document.body.classList.add('android-suspended')}catch{}},
+ suspend(){try{persist();window.nawaV2?.flush().catch(()=>{})}catch{};position=clock();at=performance.now();suspended=true;schedule();try{window.madarVerci?.suspend?.();document.body.classList.add('android-suspended')}catch{}},
  resume(){suspended=false;document.body.classList.remove('android-suspended');try{poll();window.madarVerci?.sync?.()}catch{};schedule()},
  poll(){
   if(suspended||document.hidden||getState)return;

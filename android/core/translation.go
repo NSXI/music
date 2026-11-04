@@ -173,6 +173,9 @@ func translationSidecar(v TranslationView) string {
 	return out.String()
 }
 func (s *Studio) saveTranslation(t Task, v TranslationView) error {
+	if !validTranslationLanguage(v.Target, v.RequestedSource) || len(v.OriginalHash) != 64 || strings.Trim(v.OriginalHash, "0123456789abcdef") != "" {
+		return errors.New("بيانات حفظ الترجمة غير صالحة")
+	}
 	v.SavedAt = time.Now().Format(time.RFC3339Nano)
 	v.Exists = true
 	b, e := json.MarshalIndent(v, "", "  ")
@@ -291,7 +294,7 @@ func (s *Studio) StartTranslation(id, target, source string, refresh bool) error
 }
 func (s *Studio) nextTranslation() {
 	s.mu.Lock()
-	if s.closing || s.translationState.Running || len(s.state.TranslationQueue) == 0 {
+	if s.closing || s.schedulerPausedLocked() || s.translationState.Running || len(s.state.TranslationQueue) == 0 {
 		s.mu.Unlock()
 		return
 	}
@@ -311,7 +314,12 @@ func (s *Studio) nextTranslation() {
 	s.translationState.Running = false
 	s.translationState.Revision++
 	s.translationCancel = nil
-	if e != nil {
+	suspended := e != nil && s.v2TranslationSuspended
+	s.v2TranslationSuspended = false
+	if suspended {
+		s.translationState.Phase = "بانتظار استكمال المعالجة في الخلفية"
+		s.translationState.Error = ""
+	} else if e != nil {
 		s.translationState.Error = e.Error()
 		s.translationState.Phase = "تعذرت الترجمة؛ الكلمات الأصلية محفوظة"
 		if s.translationFailures == nil {
@@ -322,7 +330,7 @@ func (s *Studio) nextTranslation() {
 		s.translationState.Progress = 1
 		s.translationState.Phase = "حُفظت الترجمة محليًا"
 	}
-	if !s.closing && len(s.state.TranslationQueue) > 0 {
+	if !suspended && !s.closing && len(s.state.TranslationQueue) > 0 {
 		s.state.TranslationQueue = s.state.TranslationQueue[1:]
 	}
 	s.save()

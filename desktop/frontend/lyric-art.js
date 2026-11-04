@@ -89,10 +89,11 @@ function paintTranslation(ctx,frame,owner,line,rect){
  else {const end=finite(speech?.end)?speech.end:frame.duration;phase=speech?.start===null?0:frame.time<speech.start?-1e-6:clamp((frame.time-speech.start)/Math.max(.02,end-speech.start))}
  cache.progress=phase;
  ctx.save();ctx.translate(rect.x||0,rect.y||0);ctx.beginPath();ctx.rect(0,0,rect.width,rect.height);ctx.clip();
- const result=paint(ctx,{...frame,width:rect.width,height:rect.height,data:cache.projected,time:phase,duration:1,manualIndex:0,translations:undefined,font:frame.translationFont||frame.font,textScale:(frame.textScale||1)*.88},cache.state);
+ const result=paint(ctx,{...frame,width:rect.width,height:rect.height,data:cache.projected,time:phase,duration:1,manualIndex:0,translations:undefined,hideOriginal:false,font:frame.translationFont||frame.font,textScale:(frame.textScale||1)*.88*(frame.translationScale||1)},cache.state);
  ctx.restore();return result;
 }
 function paint(ctx,frame,state=makeState()){
+ if(frame.hideOriginal&&frame.translations?.some(Boolean)){const i=frame.data.timed?upperBound(frame.data.units,frame.time):Math.max(0,frame.manualIndex||0),unit=frame.data.units[Math.max(0,i)];ctx.clearRect(0,0,frame.width,frame.height);if(unit)paintTranslation(ctx,frame,state,unit.line,{x:0,y:0,width:frame.width,height:frame.height});return {index:i,line:unit?.line??-1,hits:[]}}
  if(frame.style?.startsWith("motion-"))return root.MadarMotionLibrary.paint(ctx,frame,state);
  const {width:W,height:H,data,time=0,style='ship'}=frame;
  if(W<=0||H<=0)return {index:-1,hits:[]};

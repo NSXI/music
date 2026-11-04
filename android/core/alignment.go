@@ -36,6 +36,7 @@ type AlignmentReport struct {
 	Warning            string  `json:"warning,omitempty"`
 }
 type AlignmentState struct {
+	Range     bool             `json:"range,omitempty"`
 	Pending   int              `json:"pending"`
 	Running   bool             `json:"running"`
 	Ready     bool             `json:"ready"`
@@ -116,7 +117,7 @@ func (s *Studio) StartAlignment(id, language string) error {
 		return errors.New("نزّل الأغنية أولًا أو أضف ملفًا محليًا")
 	}
 	if !s.alignmentReady() {
-		return errors.New("نزّل نموذج التوقيت من إعدادات أندرويد أولًا / Download the timing model in Android settings")
+		return errors.New(s.missingAlignmentMessage())
 	}
 	s.mu.Lock()
 	if s.alignState.Running {

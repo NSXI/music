@@ -136,7 +136,7 @@ class MainActivity : ComponentActivity() {
             main.postDelayed(this,if(resumed&&PlaybackService.instance?.player?.isPlaying==true)100 else 500)
         }
     }
-    override fun onResume() { super.onResume();resumed=true;if(::web.isInitialized){web.onResume();web.evaluateJavascript("window.NawaMobile?.resume()",null)};app.updater.onResume(this) }
+    override fun onResume() { super.onResume();resumed=true;if(::web.isInitialized){web.onResume();web.evaluateJavascript("window.NawaMobile?.resume()",null)};app.updater.onResume(this);DownloadScheduler.updateClock(app,true) }
     override fun onPause() { resumed=false;if(::web.isInitialized){web.evaluateJavascript("window.NawaMobile?.suspend()",null);web.onPause()};super.onPause() }
     override fun onConfigurationChanged(newConfig: Configuration) { super.onConfigurationChanged(newConfig);if(::web.isInitialized)ViewCompat.requestApplyInsets(web) }
     override fun onDestroy() { main.removeCallbacks(tick);if(::web.isInitialized){web.removeJavascriptInterface("NawaAndroid");web.destroy()};super.onDestroy() }
@@ -163,7 +163,7 @@ class MainActivity : ComponentActivity() {
             executor.execute {
                 try {
                     val args=JSONArray(argsJson)
-                    if(method in listOf("Enqueue","StartAlignment","StartTranslation","CacheLibraryLyrics","ImportFiles","AddLibraryFolder","RescanLibraryFolders","DownloadTimingModel","DownloadAppUpdate","OpenUpdatePage"))main.post { runCatching { androidx.core.content.ContextCompat.startForegroundService(this@MainActivity,WorkService.intent(this@MainActivity)) } }
+                    if(method in listOf("Enqueue","StartAlignment","StartRangeAlignment","StartDevicePull","StartTranslation","CacheLibraryLyrics","ImportFiles","AddLibraryFolder","RescanLibraryFolders","DownloadTimingModel","DownloadAppUpdate","OpenUpdatePage"))main.post { runCatching { androidx.core.content.ContextCompat.startForegroundService(this@MainActivity,WorkService.intent(this@MainActivity)) } }
                     if(method=="CancelAlignment")TimingEngine(app).cancel()
                     when(method) {
                         "ImportFiles" -> launchPicker(id,false,arrayOf("audio/*","application/ogg","application/octet-stream")) { uris ->
@@ -184,6 +184,22 @@ class MainActivity : ComponentActivity() {
                             }
                             val extension=DocumentFile.fromSingleUri(this@MainActivity,uris.first())?.name?.substringAfterLast('.',"")?.lowercase() ?: "txt"
                             CoreBridge.call("SaveImportedLyrics",JSONArray().put(args.getString(0)).put(text).put(extension));null
+                        }
+                        "ExportTextDocument" -> launchPicker(id,true) { uris ->
+                            val name=args.getString(0);val text=args.getString(1)
+                            check(name.isNotBlank()&&name.length<180&&!name.any {it=='/'||it=='\\'||it==':'}) {"اسم الملف غير صالح"}
+                            val bytes=text.toByteArray(Charsets.UTF_8);check(bytes.size<=64*1024*1024) {"الملف أكبر من 64 MB"}
+                            val folder=DocumentFile.fromTreeUri(this@MainActivity,uris.first()) ?: error("المجلد غير متاح")
+                            val base=name.substringBeforeLast('.',name);val extension=name.substringAfterLast('.',"json")
+                            val output=folder.createFile(if(extension=="json")"application/json" else "text/plain","$base-${System.currentTimeMillis()}.$extension") ?: error("تعذر إنشاء الملف")
+                            contentResolver.openOutputStream(output.uri,"w")!!.use {it.write(bytes)};output.name
+                        }
+                        "ImportTextDocument" -> launchPicker(id,false,arrayOf("application/json","text/*","application/octet-stream")) { uris ->
+                            contentResolver.openInputStream(uris.first())!!.bufferedReader(Charsets.UTF_8).use {reader ->
+                                val result=StringBuilder();val buffer=CharArray(8192)
+                                while(true){val n=reader.read(buffer);if(n<0)break;check(result.length+n<=32*1024*1024) {"الملف كبير جدًا"};result.append(buffer,0,n)}
+                                result.toString()
+                            }
                         }
                         "GetFonts" -> reply(id,fonts())
                         "ImportFont" -> launchPicker(id,false,arrayOf("font/*","application/octet-stream")) { uris ->
@@ -217,6 +233,7 @@ class MainActivity : ComponentActivity() {
                         "AndroidStatus" -> main.post { reply(id,JSONObject().put("modelReady",File(app.root,"models/ggml-base.bin").isFile).put("modelBytes",147951465).put("sdk",Build.VERSION.SDK_INT).put("abi",Build.SUPPORTED_ABIS.first()).put("eqBands",PlaybackService.instance?.state()?.optInt("eqBands") ?: 0).put("audioOutput",getSharedPreferences("nawa-mobile",MODE_PRIVATE).getString("audioOutput","compatible"))) }
                         else -> {
                             reply(id,raw=CoreBridge.raw(method,args))
+                            if(method in listOf("SaveWorkspace","Enqueue","Control","QueueTrackUpgrade","ApplyTrackUpgrade")){CoreBridge.call("WakeTransferQueue");DownloadScheduler.schedule(app)}
                         }
                     }
                 } catch(e:Exception) { reply(id,error=e.message ?: "Android operation failed") }

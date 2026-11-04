@@ -54,6 +54,7 @@ func (s *Studio) SaveLyricsText(id, text string, timed bool) error {
 	} else {
 		record.Plain = text
 	}
+	if old,e:=s.readLyricCache(t.Song);e==nil {if e=s.backupLyricEdit(t,old);e!=nil{return e}}
 	if e := s.writeLyricCache(LyricCache{Song: t.Song, Record: record}); e != nil {
 		return e
 	}

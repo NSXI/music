@@ -6,12 +6,12 @@ const documentEvents=[];
 const document={querySelector:get,querySelectorAll:()=>[],documentElement:get('root'),body:get('body'),addEventListener(type,handler,capture){documentEvents.push({type,handler,capture})}};
 let state={jobs:[],preferences:{folder:'C:/Music',lyricProviders:['lrclib','qq','netease','kugou','musixmatch'],autoAlign:true},alignment:{ready:true}};
 const ctx={document,window:{go:{main:{Studio:{GetState:async()=>state,GetLyrics:async()=>({text:'[00:00.00]Test one\n[00:03.00]Test two',timed:true,status:'offline'})}}},matchMedia:()=>({matches:false})},localStorage:{getItem(){return null},setItem(){}},setInterval(){},setTimeout(){return 1},clearTimeout(){},requestAnimationFrame(){return 1},cancelAnimationFrame(){},CSS:{escape:x=>x},URL,Intl,console,Uint8Array,Math,Date};
-vm.createContext(ctx);vm.runInContext(fs.readFileSync('frontend/app.js','utf8'),ctx);
+vm.createContext(ctx);vm.runInContext(fs.readFileSync('frontend/app.js','utf8'),ctx);vm.runInContext(fs.readFileSync('frontend/lyrics-workflow.js','utf8'),ctx);
 function run(s){return vm.runInContext(s,ctx)}
 const song={id:'fixture',title:'<img src=x onerror=alert(1)>',artist:'Madar Tests',album:'QA',duration:24,provider:'archive',url:'https://archive.org/details/test'};
 const task={id:'12345678901234567890',song,status:'done',quality:{codec:'FLAC',lossless:true,bits:24,rate:96000},source:'archive',log:[],path:'C:/Music/test.flac',bytes:12345,total:12345};
 run(`snapshot=${JSON.stringify({...state,jobs:[task]})};current=${JSON.stringify(task)};searchResult={title:'QA',query:'QA',tracks:[${JSON.stringify(song)}],complete:false,providerCounts:{archive:1},providerErrors:{tidal:'needs setup'}};selected=new Set(['fixture']);`);
-assert.equal(run('themes.length'),9);assert.equal(run('lyricStyles.length'),24);assert.equal(run('lyricMotions.length'),15);assert.equal(run('lyricSources.length'),15);
+assert.equal(run('themes.length'),9);assert.equal(run('lyricStyles.length'),27);assert.equal(run('lyricMotions.length'),15);assert.equal(run('lyricSources.length'),16);
 for(const view of ['home','search','library','albums','downloads','player','lyrics','appearance','settings']){run(`view='${view}';render()`);const out=get('#main').innerHTML;assert.ok(out.includes('<h1>'),view);assert.ok(!out.includes('<img src=x onerror'),`escaped metadata in ${view}`);assert.ok(!out.includes('undefined'),`undefined template in ${view}`)}
 for(const theme of ['glass','orchard','pulse','cloud','prism','noir'])run(`ui.theme='${theme}';applyAppearance()`);
 const lyrics=run(`parseLyrics(${JSON.stringify('[offset:250]\n[00:01.00][00:05.50]One line\n[00:10.00]Two')},true)`);assert.equal(lyrics.length,3);assert.equal(lyrics[0].time,1.25);assert.equal(lyrics[1].time,5.75);
@@ -22,7 +22,7 @@ run(`ui.translationEnabled=true;translationData={exists:true,lines:[{original:'O
 assert.ok(run(`translationMarkup({text:'Original'},0)`).includes('&lt;img'));
 assert.equal(run(`translationMarkup({text:'Changed'},0)`),'');
 run('ui.translationEnabled=false');assert.equal(run(`translationMarkup({text:'Original'},0)`),'');
-console.log('PASS: all views render; 9 themes; 24 styles + 15 motions; escaped metadata; LRC multiple tags and offsets; Arabic and character markup.');
+console.log('PASS: all views render; 9 themes; 27 base styles + 15 motions; escaped metadata; LRC multiple tags and offsets; Arabic and character markup.');
 
 run("current={id:'stream-one',preview:true};ui.shuffle=false;playOrder=['saved-one','saved-two'];searchResult={tracks:[{id:'stream-one',provider:'ytmusic'}]};filter='all'");assert.equal(run('shouldAdvanceAfterEnd()'),false,'one preview must stop at end even after library playback');
 run("searchResult.tracks.push({id:'stream-two',provider:'audius'})");assert.equal(run('shouldAdvanceAfterEnd()'),true,'advance to next streaming result');

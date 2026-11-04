@@ -25,5 +25,9 @@ async function flush(){for(let i=0;i<8;i++)await Promise.resolve()}
  const a=context.NawaMobile.invoke('GetState'),b=context.NawaMobile.invoke('GetState');assert.equal(a,b);assert.equal(rpc.length,1,'Overlapping full library requests coalesced');
  // Settle the test RPC directly; app responses are fetched asynchronously.
  context.fetch=async()=>({json:async()=>({ok:true,result:{jobs:[]}})});await context.NawaMobile.reply(rpc[0].id);await a;
- assert.equal(context.NawaMobile.status().pendingAudio,0);console.log('Android audio bridge: load/play acknowledgements, buffering, smooth clock, stale loads/seeks, pause, frame cleanup and RPC coalescing passed.');
+ assert.equal(context.NawaMobile.status().pendingAudio,0);
+ context.NawaMobile.fx({volume:.6,pitch:2,crossfade:3,favorites:Array.from({length:50000},(_,i)=>String(i)),savedDesigns:{private:'large presentation data'}});
+ const fx=commands.at(-1);assert.equal(fx.name,'fx');assert.equal(fx.data.pitch,2);assert.equal(fx.data.favorites,undefined);assert.equal(fx.data.savedDesigns,undefined);assert.ok(JSON.stringify(fx.data).length<250,'Native FX must not serialize the whole library');reply(fx);await flush();
+ let presentations=0;context.nawaV2Settings={applyTrackDesign(){presentations++}};context.current={id:'previous'};context.taskByID=id=>id==='two'?{...track,id:'two'}:track;context.loadLyrics=()=>{};context.NawaMobile.state({...native,sampledAt:2000,id:'two',paused:true,playing:false});assert.equal(presentations,1,'Native track transition must apply its saved presentation');
+ console.log('Android audio bridge: load/play acknowledgements, buffering, smooth clock, stale loads/seeks, pause, frame cleanup, bounded FX payload and RPC coalescing passed.');
 })().catch(error=>{console.error(error);process.exitCode=1});

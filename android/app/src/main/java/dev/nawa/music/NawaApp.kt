@@ -56,6 +56,20 @@ class NawaApp : Application() {
                     .put("quickjs","$bin/libqjs.so").put("ffmpeg","$bin/libffmpeg.so")
                     .put("alignmentModel",File(root,"models/ggml-base.bin").absolutePath)
                 CoreBridge.start(root.absolutePath, JSONObject().put("paths",paths).put("env",JSONArray(processEnvironment.map { "${it.key}=${it.value}" })), masterKey())
+                val connectivity=getSystemService(android.net.ConnectivityManager::class.java)
+                fun publishNetwork() { quick.execute { runCatching {
+                    val caps=connectivity.getNetworkCapabilities(connectivity.activeNetwork)
+                    CoreBridge.call("SetTransferNetworkState",JSONArray().put(caps?.hasTransport(android.net.NetworkCapabilities.TRANSPORT_WIFI)==true))
+                    DownloadScheduler.schedule(this@NawaApp)
+                } } }
+                connectivity.registerDefaultNetworkCallback(object: android.net.ConnectivityManager.NetworkCallback() {
+                    override fun onAvailable(network: android.net.Network) { publishNetwork() }
+                    override fun onLost(network: android.net.Network) { publishNetwork() }
+                    override fun onCapabilitiesChanged(network: android.net.Network,capabilities: android.net.NetworkCapabilities) { publishNetwork() }
+                })
+                publishNetwork()
+                DownloadScheduler.updateClock(this@NawaApp)
+                androidx.core.content.ContextCompat.registerReceiver(this,object: android.content.BroadcastReceiver(){override fun onReceive(context: android.content.Context,intent: Intent){DownloadScheduler.updateClock(this@NawaApp)}},android.content.IntentFilter().apply {addAction(Intent.ACTION_TIMEZONE_CHANGED);addAction(Intent.ACTION_TIME_CHANGED)},androidx.core.content.ContextCompat.RECEIVER_NOT_EXPORTED)
                 Thread({
                     while(true) {
                         val work = CoreBridge.poll()

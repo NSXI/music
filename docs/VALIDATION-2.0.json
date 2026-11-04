@@ -1,0 +1,36 @@
+{
+  "version": "2.0.0",
+  "versionCode": 7,
+  "sharedRevision": "6bac5a419e6e242190701c2567ed04fb821c4476b06867d0d5b55fcc002ef7b1",
+  "desktopUI": {
+    "passed": true,
+    "checks": 19
+  },
+  "androidUI": {
+    "passed": true,
+    "checks": 8
+  },
+  "nativeTests": 20,
+  "nativeModelRange": {
+    "words": 12,
+    "reviewRequired": true,
+    "outsidePreserved": true
+  },
+  "nativeModelInference": true,
+  "longRun": {
+    "passed": true,
+    "version": "2.0.0",
+    "seconds": 61,
+    "samples": 60,
+    "heapBeforeBytes": 16814400,
+    "heapAfterBytes": 17175376,
+    "maximumDOMNodes": 334,
+    "minimumDOMNodes": 245,
+    "errors": [],
+    "scope": "Actual muted headless playback, 60 one-second samples, repeated lyric style lifecycle. Browser heap and DOM only; not process RAM, Samsung FPS, battery or speaker measurement."
+  },
+  "signature": "Same Android release certificate; Windows EXE has version resources and SHA256, no Authenticode certificate supplied.",
+  "physicalSamsung": "Not used; no speaker, DAC, battery or native FPS measurement.",
+  "network": "Controlled fixtures and existing native public-source smoke tests; no claim every provider is available in every country.",
+  "sharedSourceTests": "7 passing synchronization tests, full Go suite, 11 shared UI/timing/motion/resource harnesses and Android bridge."
+}

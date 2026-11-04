@@ -30,6 +30,9 @@ func (s *Studio) metadataLoop(ctx context.Context) {
 		case <-s.metadataWake:
 		}
 		for {
+			if !s.backgroundWorkAllowed() {
+				break
+			}
 			if ctx.Err() != nil {
 				return
 			}

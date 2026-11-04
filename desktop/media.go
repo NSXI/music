@@ -309,6 +309,7 @@ func (s *Studio) remoteLyrics(ctx context.Context, song Song) (LyricsRecord, err
 }
 
 type LyricView struct {
+	Pronunciation []string `json:"pronunciation,omitempty"`
 	Source    string           `json:"source,omitempty"`
 	Words     []WordLine       `json:"words,omitempty"`
 	Alignment *AlignmentReport `json:"alignment,omitempty"`
@@ -398,6 +399,7 @@ func (s *Studio) importPaths(ctx context.Context, paths []string) (int, error) {
 		found := false
 		for i, j := range s.state.Jobs {
 			if j.Hash == h && h != "" {
+				if _, err:=os.Stat(j.Path); os.IsNotExist(err) {s.state.Jobs[i].Path=path;s.state.Jobs[i].Local=true;if info,e:=os.Stat(path);e==nil{s.state.Jobs[i].LocalModified=info.ModTime().UnixNano()}}
 				if folderPathKey(j.Path) == folderPathKey(path) {
 					if info, err := os.Stat(path); err == nil {
 						s.state.Jobs[i].LocalModified = info.ModTime().UnixNano()
@@ -541,6 +543,10 @@ func (s *Studio) MediaHandler() http.Handler {
 		if parts[0] == "artwork" {
 			s.ServeArtwork(w, r, parts[1])
 			return
+		}
+		if parts[0] == "pitch" {
+			if len(parts[1])!=20 || strings.Trim(parts[1],"0123456789abcdef")!="" {http.NotFound(w,r);return}
+			http.ServeFile(w,r,filepath.Join(s.root,"data","audio-fx",parts[1]+".wav"));return
 		}
 		t, ok := s.task(parts[1])
 		if !ok {

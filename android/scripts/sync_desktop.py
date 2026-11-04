@@ -70,7 +70,7 @@ def android_app(data):
     text=canonical(data)
     substitutions={
       "function ensureGraph(){":"function ensureGraph(){if(window.NawaMobile)return graph||(graph={ctx:{resume:()=>Promise.resolve()}});",
-      "function applyFX(){":"function applyFX(){if(window.NawaMobile){window.NawaMobile.fx(ui);persist();return;}",
+      "function applyFX(){":"function applyFX(){if(window.NawaMobile){window.NawaMobile.fx(ui);persist(true);return;}",
       "function drawSpectrum(){":"function drawSpectrum(){if(window.NawaMobile)return;",
       "audio.addEventListener('ended',()=>{":"audio.addEventListener('ended',()=>{if(window.NawaMobile)return;",
       "async function poll(){try{":"async function poll(){if(window.NawaMobile&&document.body.classList.contains('android-suspended'))return;try{",

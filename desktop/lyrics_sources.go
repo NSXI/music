@@ -34,6 +34,7 @@ type WordLine struct {
 	Words []TimedWord `json:"words"`
 }
 type LyricCache struct {
+	Pronunciation []string `json:"pronunciation,omitempty"`
 	Song      Song             `json:"song"`
 	Record    LyricsRecord     `json:"record"`
 	SavedAt   string           `json:"savedAt"`
@@ -58,7 +59,7 @@ func validLRC(text string, duration float64) bool {
 			count++
 		}
 	}
-	return count >= 2
+	return count >= 1
 }
 func (s *Studio) readLyricCache(song Song) (LyricCache, error) {
 	var c LyricCache
@@ -557,6 +558,7 @@ func (s *Studio) persistLyricView(t Task, r LyricsRecord) (LyricView, error) {
 	}
 	if e == nil {
 		view.Words = cached.Words
+		view.Pronunciation = cached.Pronunciation
 		view.Alignment = cached.Alignment
 	}
 	if t.Path != "" && s.GetState().Preferences.AutoAlign && !wordTimingComplete(view.Words, text, t.Song.Duration) {

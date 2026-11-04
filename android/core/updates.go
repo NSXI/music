@@ -32,6 +32,7 @@ type UpdateManifest struct {
 	ReleaseURL     string                 `json:"releaseUrl"`
 	Notes          string                 `json:"notes"`
 	Assets         map[string]UpdateAsset `json:"assets"`
+	Components     map[string]UpdateAsset `json:"components,omitempty"`
 }
 type UpdateView struct {
 	Feed           string `json:"feed"`

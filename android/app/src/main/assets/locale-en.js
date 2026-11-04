@@ -1,6 +1,20 @@
 'use strict';
 // Reviewed interface copy; track metadata and lyric text are never translated here.
 window.MADAR_EN={
+  "بحث مخصص لملفات FLAC؛ نفس كتالوج Archive": "FLAC-specific search in the same Archive catalog",
+  "الكلمات، على وقتك": "Lyrics, in your time",
+  "بدون توقيت": "No timing yet",
+  "نفضّل المصدر المطابق بتوقيت الكلمات. تحليل الصوت يبدأ باختيارك.": "Best matching word timing first. Audio alignment runs when you choose.",
+  "المحفوظ أولًا · توقيت الكلمات · توقيت السطور · النص": "Saved lyrics first \u00b7 Word timing \u00b7 Line timing \u00b7 Plain text",
+  "جلب أفضل كلمات": "Find best lyrics",
+  "اضبط التوقيت الآن": "Align timing now",
+  "المظهر": "Appearance",
+  "يُقرأ الملف المحلي والكاش أولًا. عند الجلب، نفضّل التوقيت الصريح للكلمات، ثم السطور، ثم النص. تُستخدم المصادر المفعّلة فقط وتُحفظ أفضل نتيجة مطابقة محليًا.": "Local files and cache are read first. Prefer explicit word timing, then line timing, then plain text. Only enabled sources are used, and the best matching result is saved locally.",
+  "AMLL · توقيت كلمات ومقاطع": "AMLL \u00b7 Word and syllable timing",
+  "NetEase · LRC / YRC عند توفره": "NetEase \u00b7 LRC / YRC when available",
+  "جارٍ جلب النتائج…": "Fetching results\u2026",
+  "إلغاء البحث": "Cancel search",
+
   "0ث": "0s",
   "1 مسار": "1 track",
   "1 مسار · 1 ألبوم": "1 track · 1 album",

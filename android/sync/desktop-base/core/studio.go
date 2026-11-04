@@ -50,6 +50,7 @@ type Quality struct {
 	Duration float64 `json:"duration"`
 }
 type Task struct {
+	UpgradeFor      string   `json:"upgradeFor,omitempty"`
 	MetadataPending bool     `json:"metadataPending,omitempty"`
 	LocalModified   int64    `json:"localModified,omitempty"`
 	GenreChecked    bool     `json:"genreChecked,omitempty"`
@@ -118,7 +119,23 @@ type Result struct {
 	Complete       bool              `json:"complete"`
 	Total          int               `json:"total"`
 }
+type runningDownload struct {
+	cancel context.CancelFunc
+	action string
+}
+
 type Studio struct {
+	activeDownloads        map[string]*runningDownload
+	v2Mu                   sync.Mutex
+	linkMu                 sync.Mutex
+	link                   *deviceLink
+	linkTransfer           LinkTransfer
+	linkCancel             context.CancelFunc
+	v2NetworkWiFi          bool
+	v2TimezoneOffset       int
+	v2TimezoneKnown        bool
+	v2SchedulerHold        bool
+	v2TranslationSuspended bool
 	searchMu               sync.Mutex
 	searchCancel           context.CancelFunc
 	searchGeneration       uint64
@@ -170,7 +187,7 @@ type Studio struct {
 }
 
 func NewStudio(root string) *Studio {
-	s := &Studio{root: root, client: &http.Client{Timeout: 90 * time.Second}, known: map[string]Song{}, wake: make(chan struct{}, 1), metadataWake: make(chan struct{}, 1), searchExtractSlots: make(chan struct{}, 2), done: make(chan struct{})}
+	s := &Studio{activeDownloads: map[string]*runningDownload{}, root: root, client: &http.Client{Timeout: 90 * time.Second}, known: map[string]Song{}, wake: make(chan struct{}, 1), metadataWake: make(chan struct{}, 1), searchExtractSlots: make(chan struct{}, 2), done: make(chan struct{})}
 	s.state = Snapshot{Root: root, Jobs: []Task{}, Preferences: Preferences{AutoTranslate: true, TranslationTarget: "ar", TranslationSource: "auto", Folder: filepath.Join(root, "Downloads"), Lyrics: true, AutoMatch: true, AutoAlign: false, AlignmentLanguage: "auto", LyricProviders: append([]string{}, defaultLyricProviders...)}}
 	raw, err := os.ReadFile(filepath.Join(root, "data", "library.json"))
 	if err == nil {
@@ -291,6 +308,7 @@ func NewStudio(root string) *Studio {
 }
 
 func (s *Studio) start(ctx context.Context) {
+	s.prepareV2Migration()
 	s.ctx = ctx
 	s.startPreviewServer()
 	run, halt := context.WithCancel(ctx)
@@ -300,6 +318,7 @@ func (s *Studio) start(ctx context.Context) {
 	go s.nextTranslation()
 	go s.refreshLibraryGenres(run)
 	go s.metadataLoop(run)
+	go s.v2Maintenance(run)
 	select {
 	case s.metadataWake <- struct{}{}:
 	default:
@@ -328,6 +347,9 @@ func (s *Studio) stop(_ context.Context) {
 	}
 	if s.activeCancel != nil {
 		s.activeCancel()
+	}
+	for _, active := range s.activeDownloads {
+		active.cancel()
 	}
 	s.mu.Unlock()
 	if s.halt != nil {
@@ -369,9 +391,7 @@ func (s *Studio) save() {
 func (s *Studio) GetState() Snapshot {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	b, _ := json.Marshal(s.state)
-	var r Snapshot
-	json.Unmarshal(b, &r)
+	r := cloneSnapshot(s.state)
 	r.SpotifyConnected = s.spotifyToken != ""
 	r.MusixmatchConfigured = s.musixmatchKey != ""
 	r.MetadataConfigured = map[string]bool{}
@@ -383,6 +403,10 @@ func (s *Studio) GetState() Snapshot {
 	r.FolderImport = s.folderImport
 	r.FolderImport.Errors = append([]string(nil), s.folderImport.Errors...)
 	r.Alignment = s.alignState
+	if s.alignState.Report != nil {
+		report := *s.alignState.Report
+		r.Alignment.Report = &report
+	}
 	r.Alignment.Ready = s.alignmentReady()
 	r.Alignment.Pending = len(s.state.AlignmentQueue)
 	r.Translation = s.translationState
@@ -434,6 +458,9 @@ func norm(v string) string {
 	}, v)), " ")
 }
 func sameSong(a, b Song) bool {
+	if recordingVersion(a.Title) != recordingVersion(b.Title) {
+		return false
+	}
 	if a.ID == b.ID {
 		return true
 	}
@@ -539,19 +566,23 @@ func (s *Studio) Control(id, action string) error {
 				t.RetryAt = 0
 			}
 		case "remove":
-			if t.ID == s.active {
+			if s.activeDownloads[t.ID] != nil {
 				return errors.New("أوقف المسار أولًا قبل إزالته")
 			}
 			s.state.Jobs = append(s.state.Jobs[:i], s.state.Jobs[i+1:]...)
 			s.save()
 			return nil
 		}
-		if s.active == t.ID && (action == "pause" || action == "cancel") {
-			s.action = action
-			if s.activeCancel != nil {
-				s.activeCancel()
+		if active := s.activeDownloads[t.ID]; active != nil {
+			if action == "pause" || action == "cancel" {
+				active.action = action
+				active.cancel()
+			}
+			if action == "resume" || action == "retry" {
+				active.action = "retry"
 			}
 		}
+
 	}
 	s.save()
 	s.signal()
@@ -639,16 +670,37 @@ func (s *Studio) SpatialSettings() error {
 }
 func (s *Studio) loop(ctx context.Context) {
 	defer close(s.done)
+	var running sync.WaitGroup
+	defer running.Wait()
 	for {
 		if ctx.Err() != nil {
 			return
 		}
+		policy := s.downloadPolicy()
+		capacity := policy.Parallel
+		if capacity < 1 {
+			capacity = 1
+		}
+		if capacity > 2 {
+			capacity = 2
+		}
+		if !s.downloadPolicyAllows(time.Now()) {
+			select {
+			case <-ctx.Done():
+				return
+			case <-s.wake:
+			case <-time.After(30 * time.Second):
+			}
+			continue
+		}
 		s.mu.Lock()
 		idx := -1
-		for i, t := range s.state.Jobs {
-			if t.Status == "queued" {
-				idx = i
-				break
+		if len(s.activeDownloads) < capacity {
+			for i, t := range s.state.Jobs {
+				if t.Status == "queued" && s.activeDownloads[t.ID] == nil {
+					idx = i
+					break
+				}
 			}
 		}
 		if idx < 0 {
@@ -663,40 +715,47 @@ func (s *Studio) loop(ctx context.Context) {
 		t := s.state.Jobs[idx]
 		s.state.Jobs[idx].Status = "working"
 		run, cancel := context.WithCancel(ctx)
-		s.active = t.ID
-		s.activeCancel = cancel
-		s.action = ""
+		active := &runningDownload{cancel: cancel}
+		s.activeDownloads[t.ID] = active
 		s.save()
 		s.mu.Unlock()
-		err := s.execute(run, t)
-		cancel()
-		s.mu.Lock()
-		for i := range s.state.Jobs {
-			j := &s.state.Jobs[i]
-			if j.ID != t.ID {
-				continue
+		running.Add(1)
+		go func() {
+			defer running.Done()
+			defer cancel()
+			err := s.execute(run, t)
+			s.mu.Lock()
+			for i := range s.state.Jobs {
+				j := &s.state.Jobs[i]
+				if j.ID != t.ID {
+					continue
+				}
+				j.Phase = ""
+				j.RetryAt = 0
+				switch {
+				case err == nil:
+					j.Status = "done"
+					j.Error = ""
+				case active.action == "pause":
+					j.Status = "paused"
+				case active.action == "cancel":
+					j.Status = "cancelled"
+				case active.action == "policy" || active.action == "retry" || ctx.Err() != nil:
+					j.Status = "queued"
+					j.Error = ""
+				default:
+					j.Status = "failed"
+					j.Error = err.Error()
+				}
 			}
-			j.Phase = ""
-			j.RetryAt = 0
+			delete(s.activeDownloads, t.ID)
+			s.save()
+			s.mu.Unlock()
 			if err == nil {
-				j.Status = "done"
-				j.Error = ""
-			} else if s.action == "pause" {
-				j.Status = "paused"
-			} else if s.action == "cancel" {
-				j.Status = "cancelled"
-			} else if ctx.Err() != nil {
-				j.Status = "queued"
-			} else {
-				j.Status = "failed"
-				j.Error = err.Error()
+				s.completedDownload(t.ID)
 			}
-		}
-		s.active = ""
-		s.activeCancel = nil
-		s.action = ""
-		s.save()
-		s.mu.Unlock()
+			s.signal()
+		}()
 	}
 }
 func fileHash(path string) string {
@@ -713,6 +772,13 @@ func fileHash(path string) string {
 }
 func (s *Studio) execute(ctx context.Context, t Task) error {
 	p := s.GetState().Preferences
+	if t.UpgradeFor != "" {
+		p.AutoMatch = false
+		p.Folder = filepath.Join(s.root, "data", "audio-upgrades", t.ID)
+		if e := os.MkdirAll(p.Folder, 0700); e != nil {
+			return e
+		}
+	}
 	if t.Song.Provider == "spotify" && t.Song.Ref != "" && t.Song.Artwork == "" {
 		if r, e := s.spotifyEmbed(ctx, "track", t.Song.Ref); e == nil && len(r.Tracks) > 0 {
 			t.Song.Artwork = r.Tracks[0].Artwork

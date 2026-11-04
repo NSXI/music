@@ -96,9 +96,17 @@ class NawaNativeTest {
             s.command("load",JSONObject().put("id","test-silence").put("url",File(app.root,"native-test.wav").toURI().toString()).put("title","Silent native test"))
             s.command("play",JSONObject())
         }
-        Thread.sleep(600)
+        // Decoder readiness is asynchronous; a fixed 600ms sleep flakes while
+        // an emulator shares CPU with the release build. Preserve the same
+        // duration/error assertions with a bounded readiness wait.
+        val readyDeadline=System.currentTimeMillis()+15000
+        var prepared=false
+        while(System.currentTimeMillis()<readyDeadline&&!prepared){
+            instrument.runOnMainSync {val s=PlaybackService.instance!!;assertNull(s.player.playerError);prepared=s.player.duration>=1900}
+            if(!prepared)Thread.sleep(50)
+        }
         instrument.runOnMainSync {
-            val s=PlaybackService.instance!!;assertNull(s.player.playerError);assertTrue(s.player.duration>=1900)
+            val s=PlaybackService.instance!!;assertNull(s.player.playerError);assertTrue("Decoder did not report the fixture duration",prepared)
             s.command("pause",JSONObject());s.command("seek",JSONObject().put("position",1.1));assertEquals(1100,s.player.currentPosition);assertFalse(s.player.playWhenReady)
         }
         }
