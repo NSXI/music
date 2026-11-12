@@ -12,6 +12,7 @@ import (
 )
 
 type RangeAlignmentPreview struct {
+	Full     bool            `json:"full,omitempty"`
 	TaskID   string          `json:"taskId"`
 	Revision string          `json:"revision"`
 	Start    float64         `json:"start"`
@@ -57,7 +58,7 @@ func (s *Studio) StartRangeAlignment(id string, start, end float64, language str
 	s.mu.Unlock()
 	go func() {
 		defer cancel()
-		e := s.runRangeAlignment(ctx, t, doc.Revision, start, end, text, language)
+		e := s.runRangeAlignment(ctx, t, doc.Revision, start, end, text, language, false)
 		s.mu.Lock()
 		s.alignState.Running = false
 		s.alignCancel = nil
@@ -69,7 +70,7 @@ func (s *Studio) StartRangeAlignment(id string, start, end float64, language str
 	}()
 	return nil
 }
-func (s *Studio) runRangeAlignment(ctx context.Context, t Task, revision string, start, end float64, text, language string) error {
+func (s *Studio) runRangeAlignment(ctx context.Context, t Task, revision string, start, end float64, text, language string, full bool) error {
 	release, e := s.acquireHeavyTask(ctx, "alignment-range")
 	if e != nil {
 		return e
@@ -106,14 +107,14 @@ func (s *Studio) runRangeAlignment(ctx context.Context, t Task, revision string,
 	}
 	result.Report.NeedsReview = true
 	result.Report.Accepted = false
-	preview := RangeAlignmentPreview{TaskID: t.ID, Revision: revision, Start: start, End: end, Lines: result.Lines, Report: result.Report}
+	preview := RangeAlignmentPreview{Full: full, TaskID: t.ID, Revision: revision, Start: start, End: end, Lines: result.Lines, Report: result.Report}
 	b, _ := json.Marshal(preview)
 	if e = writeChanged(filepath.Join(dir, t.ID+".json"), b); e != nil {
 		return e
 	}
 	s.mu.Lock()
 	s.alignState.Progress = 1
-	s.alignState.Phase = "نطاق محلّل يحتاج مراجعتك"
+	s.alignState.Phase = "توقيت يحتاج مراجعتك"
 	s.alignState.Report = &result.Report
 	s.mu.Unlock()
 	return nil
@@ -149,6 +150,20 @@ func (s *Studio) ApplyRangeAlignment(id string) (LyricEditDocument, error) {
 	doc, e := s.GetLyricDocument(id)
 	if e != nil {
 		return doc, e
+	}
+	if p.Full {
+		doc.Lines = p.Lines
+		doc.Timed = true
+		next, err := s.SaveLyricDocument(doc)
+		if err == nil {
+			s.mu.Lock()
+			if s.alignState.TaskID == id && s.alignState.Report != nil {
+				s.alignState.Report.Accepted = true
+				s.alignState.Phase = "اعتُمد توقيت الأغنية"
+			}
+			s.mu.Unlock()
+		}
+		return next, err
 	}
 	t, _ := s.task(id)
 	source, e := s.translationOriginal(t)

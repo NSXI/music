@@ -16,11 +16,11 @@ for(const [medium,options] of Object.entries(finishes))if(!options.some(([id])=>
 const clamp=(v,min,max,fallback)=>Number.isFinite(Number(v))?Math.max(min,Math.min(max,Number(v))):fallback;
 let changing=false,cacheID='',cacheStatus='',savedScroll=0,mediaSignature='';
 const expandIcon='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></svg>';
-const fs={active:false,media,finishes,backgrounds,progressStyles,enter,leave,render,settings,afterRender,sync,applyPreferences,loaded,canReuse,repaint};
+const fs={active:false,media,finishes,backgrounds,progressStyles,enter,leave,render,settings,afterRender,sync,applyPreferences,loaded,canReuse,repaint,setDockPinned,dockPinned:()=>dockPinned};
 window.madarFullscreen=fs;
 
 async function enter(){
- if(changing||fs.active)return;
+ if(changing||fs.active||document.body.classList.contains('v3-mini-player'))return;
  if(!current){toast('شغّل أغنية أولًا ثم افتح ملء الشاشة');return}
  changing=true;savedScroll=$('#main').scrollTop;
  try{await call('SetLyricsFullscreen',true);fs.active=true;view='lyrics';document.body.classList.add('lyrics-is-fullscreen');nav();globalRender();$('.fs-scene')?.focus({preventScroll:true})}
@@ -73,7 +73,16 @@ function applyPreferences(){
  persist();
 }
 let dockPinned=false;
-function bindDock(){const dock=$('#fs-dock'),handle=$('#fs-dock-toggle');if(!dock||dock.dataset.bound)return;dock.dataset.bound='true';const update=()=>{const open=dockPinned||dock.matches(':hover')||dock.contains(document.activeElement);dock.dataset.open=String(open);handle?.setAttribute('aria-expanded',String(open))};for(const event of ['pointerenter','pointerleave','focusin','focusout'])dock.addEventListener(event,()=>queueMicrotask(update));handle?.addEventListener('click',()=>{dockPinned=!dockPinned;dock.dataset.open=String(dockPinned);handle.setAttribute('aria-expanded',String(dockPinned));if(!dockPinned)handle.blur()})}
+function setDockPinned(pinned){
+ dockPinned=pinned;
+ const dock=$('#fs-dock'),handle=$('#fs-dock-toggle'),button=$('[data-v3-stage=pin]');
+ dock?.setAttribute('data-open',String(pinned));
+ handle?.setAttribute('aria-expanded',String(pinned));
+ button?.setAttribute('aria-pressed',String(pinned));
+ if(!pinned){handle?.blur();button?.blur()}
+ if($('.fs-scene'))$('.fs-scene').dataset.dockPinned=String(pinned);
+}
+function bindDock(){const dock=$('#fs-dock'),handle=$('#fs-dock-toggle');if(!dock||dock.dataset.bound)return;dock.dataset.bound='true';const update=()=>{const open=dockPinned||dock.matches(':hover')||dock.contains(document.activeElement);dock.dataset.open=String(open);handle?.setAttribute('aria-expanded',String(open))};for(const event of ['pointerenter','pointerleave','focusin','focusout'])dock.addEventListener(event,()=>queueMicrotask(update));handle?.addEventListener('click',()=>setDockPinned(!dockPinned))}
 function sync(){
  if(!fs.active||!$('#fs-player-card')&&!$('#fs-play'))return;bindDock();
  document.body.classList.toggle('fs-playing',!audio.paused&&!audio.ended);document.body.classList.toggle('fs-suspended',document.hidden);

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_title">Nawa playback</string>
+    <string name="widget_open">Open Nawa</string>
+    <string name="widget_next_track">Next: %1$s</string>
+    <string name="widget_toggle">Play or pause</string>
+    <string name="widget_next">Next track</string>
+</resources>

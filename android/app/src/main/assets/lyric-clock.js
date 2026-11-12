@@ -125,6 +125,7 @@ function moveActive(next,pos){
  const row=state.rows[next];
  if(row){
   row.initialized=false;
+  if(state.stage.dataset?.manualFollow==='true')return;
   // Read geometry once per line transition, never for the per-word frame work.
   const top=row.element.offsetTop-state.stage.clientHeight/2+row.element.clientHeight/2;
   state.stage.scrollTo({top,behavior:ui.motion&&!reduced?.matches?'smooth':'auto'});
@@ -139,6 +140,7 @@ function tick(){
   const next=upperBound(state.times,pos)-1;moveActive(next,pos);
   const row=state.rows[next];if(row){updateRowWords(row,pos,!row.initialized);row.initialized=true}
   lastTickPosition=pos;
+  window.nawaV3Stage?.tick(audio.currentTime,next);
  }
  schedule();
 }

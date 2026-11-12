@@ -65,6 +65,7 @@ class NawaTransport(private val service: PlaybackService) {
             val now=SystemClock.elapsedRealtime();val delta=if(lastTick==0L)0L else (now-lastTick).coerceIn(0,250);lastTick=now
             try {
                 val player=service.player
+                PlaybackWidget.refresh(service)
                 if(sleepDeadline>0&&System.currentTimeMillis()>=sleepDeadline){sleepDeadline=0;player.pause();cancelFade()}
                 val old=outgoing
                 if(old!=null){

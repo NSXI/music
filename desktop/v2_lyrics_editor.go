@@ -332,6 +332,8 @@ func (s *Studio) ExportLyricsDocument(id, format string) (string, error) {
 		return string(b), e
 	case "txt":
 		return stripLyricText(d.Text), nil
+	case "srt":
+		return s.exportSRT(id, d)
 	case "lrc":
 		if !d.Timed {
 			return "", errors.New("هذه الكلمات غير موقّتة")

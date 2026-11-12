@@ -94,7 +94,7 @@ func (s *Studio) GetWorkspace() (Workspace, error) {
 
 // UI keys are intentionally enumerated: backups and device sync cannot carry
 // access tokens, arbitrary script, service URLs or native paths through this API.
-var workspaceUIKeys = strings.Fields("theme shape motion opacity customAccent colorSets lyricFont translationFont translationEnabled translationAuto translationTarget translationSource lyricMotion motionDuration lyricSource lyricOffsets lyricStyle lyricOffset volume speed preservePitch reverb width preamp eq bypass shuffle repeat favorites playlists libraryMode language nawaLogo performanceMode lyricFPS lyricReveal lyricScale translationScale fullscreenBackground fsBackground fsStyle fsLayout homeSections themePresets fullscreenPresets soundProfiles activeSoundProfile pitch crossfade normalizeVolume normalizationTarget showOriginal showTranslation showRomanization sleepEndOfTrack uiDensity savedDesigns artworkSelections fsVariants fsMedium fsProgress fsCardSize fsTextSize fsRotation fsBlur fsDim fsAmbient gameThemeLyrics gameThemeArt gameThemeAvatar gameThemeChoices gameThemePrevious themeEntrance lyricFps verciText verciAccent verciSecondary verciLens watchFolders lyricsScene fontSizeOriginal fontSizeTranslation playlistDesigns activePlaylist presentationBase")
+var workspaceUIKeys = strings.Fields("theme shape motion opacity customAccent colorSets lyricFont translationFont translationEnabled translationAuto translationTarget translationSource lyricMotion motionDuration lyricSource lyricOffsets lyricStyle lyricOffset volume speed preservePitch reverb width preamp eq bypass shuffle repeat favorites playlists libraryMode language nawaLogo performanceMode lyricFPS lyricReveal lyricScale translationScale fullscreenBackground fsBackground fsStyle fsLayout homeSections themePresets fullscreenPresets soundProfiles activeSoundProfile pitch crossfade normalizeVolume normalizationTarget showOriginal showTranslation showRomanization sleepEndOfTrack uiDensity savedDesigns artworkSelections fsVariants fsMedium fsProgress fsCardSize fsTextSize fsRotation fsBlur fsDim fsAmbient gameThemeLyrics gameThemeArt gameThemeAvatar gameThemeChoices gameThemePrevious themeEntrance lyricFps verciText verciAccent verciSecondary verciLens watchFolders lyricsScene fontSizeOriginal fontSizeTranslation playlistDesigns activePlaylist presentationBase v3Stage v3Cues v3AlbumNormalization v3OfflineQuota v3ConnectedSync")
 
 func cleanWorkspaceUI(input map[string]json.RawMessage) (map[string]json.RawMessage, error) {
 	out := map[string]json.RawMessage{}
@@ -310,7 +310,7 @@ func (s *Studio) ExportWorkspaceBackup() (WorkspaceBackup, error) {
 	if e != nil {
 		return WorkspaceBackup{}, e
 	}
-	b := WorkspaceBackup{Schema: 2, Version: "2.0.0", CreatedAt: time.Now().UTC().Format(time.RFC3339), Workspace: w, TaskKeys: map[string]string{}}
+	b := WorkspaceBackup{Schema: 2, Version: appReleaseVersion, CreatedAt: time.Now().UTC().Format(time.RFC3339), Workspace: w, TaskKeys: map[string]string{}}
 	for _, t := range s.GetState().Jobs {
 		if t.Status != "done" || t.UpgradeFor != "" {
 			continue

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_title">مشغّل نَوى</string>
+    <string name="widget_open">افتح نَوى</string>
+    <string name="widget_next_track">التالي %1$s</string>
+    <string name="widget_toggle">تشغيل أو إيقاف</string>
+    <string name="widget_next">المسار التالي</string>
+</resources>

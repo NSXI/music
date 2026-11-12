@@ -127,6 +127,20 @@ type runningDownload struct {
 type Studio struct {
 	activeDownloads        map[string]*runningDownload
 	v2Mu                   sync.Mutex
+	v3Mu                   sync.Mutex
+	v3ApplyMu              sync.Mutex
+	v3SyncMu               sync.Mutex
+	v3Host                 *http.Server
+	v3Playback             ContinuityPlayback
+	v3PauseTrack           string
+	v3ContinuityChanges    uint64
+	v3Offline              OfflineStatus
+	v3OfflineCancel        context.CancelFunc
+	v3Clip                 ClipStatus
+	v3ClipCancel           context.CancelFunc
+	v3ClipBuild            *clipBuild
+	v3MiniSize             [2]int
+	v3MiniWasMaximized     bool
 	linkMu                 sync.Mutex
 	link                   *deviceLink
 	linkTransfer           LinkTransfer
@@ -309,6 +323,7 @@ func NewStudio(root string) *Studio {
 
 func (s *Studio) start(ctx context.Context) {
 	s.prepareV2Migration()
+	s.prepareV3Migration()
 	s.ctx = ctx
 	s.startPreviewServer()
 	run, halt := context.WithCancel(ctx)
@@ -326,6 +341,14 @@ func (s *Studio) start(ctx context.Context) {
 	s.signal()
 }
 func (s *Studio) stop(_ context.Context) {
+	s.CancelOfflinePack()
+	s.CancelLyricClip()
+	s.v3Mu.Lock()
+	if s.v3Host != nil {
+		_ = s.v3Host.Close()
+		s.v3Host = nil
+	}
+	s.v3Mu.Unlock()
 	s.previewMu.Lock()
 	if s.previewServer != nil {
 		s.previewServer.Close()

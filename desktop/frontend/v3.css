@@ -1,0 +1,310 @@
+.nawa-v3 {
+  --v3-album-accent: var(--accent, #d6cee6);
+  --v3-border: color-mix(in srgb, var(--ink) 13%, transparent);
+  --v3-surface: color-mix(in srgb, var(--panel-solid) 92%, var(--ink));
+}
+.v3-navigation > .v3-nav-extra,
+.v3-navigation > .nav-divider { display: none !important }
+.v3-title-search {
+  margin-inline-start: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: .55rem;
+  -webkit-app-region: no-drag;
+}
+.v3-title-search svg { width: 1rem; height: 1rem }
+.v3-title-search kbd { font-size: .7rem; color: var(--muted); direction: ltr }
+.v3-home-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .9rem;
+  margin-block-end: 1.2rem;
+}
+.v3-home-header h1 { margin: 0; font-size: clamp(1.5rem, 4vw, 2.4rem) }
+.v3-home-actions, .v3-dialog-actions {
+  display: flex;
+  gap: .55rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.v3-home-actions svg, .v3-more-grid svg { width: 1.05rem; height: 1.05rem }
+.v3-resume {
+  display: grid;
+  grid-template-columns: clamp(70px, 10vw, 126px) minmax(0, 1fr) auto;
+  gap: clamp(.8rem, 2.3vw, 1.9rem);
+  align-items: center;
+  padding: clamp(.8rem, 2vw, 1.45rem);
+  margin-block-end: 1.8rem;
+  border-block: 1px solid var(--v3-border);
+  background: color-mix(in srgb, var(--v3-album-accent) 7%, transparent);
+}
+.v3-resume > .artwork, .v3-empty-cover { width: 100%; aspect-ratio: 1 }
+.v3-resume h2 { margin: .1rem 0; overflow-wrap: anywhere; font-size: clamp(1.1rem, 3.6vw, 2.3rem) }
+.v3-resume p, .v3-resume small { color: var(--muted); margin: .25rem 0 }
+.v3-home .v2-home-section { margin-block: 1.5rem }
+.v3-home-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 1rem;
+}
+.v3-library-tabs {
+  display: flex;
+  gap: .45rem;
+  padding-block-end: .8rem;
+  margin-block-end: 1.2rem;
+  border-block-end: 1px solid var(--v3-border);
+  overflow-x: auto;
+}
+.v3-library-tabs > button { flex-shrink: 0 }
+.v3-library-tabs > .active { box-shadow: inset 0 -2px var(--accent) }
+.v3-more-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
+  gap: .55rem;
+  margin-block-end: 1rem;
+}
+.v3-more-grid button { display: flex; align-items: center; justify-content: start; gap: .8rem }
+.v3-search-form { display: flex; gap: .55rem; margin-block-end: .8rem }
+.v3-search-form > input { flex: 1; min-width: 0 }
+.v3-search-results { display: grid; gap: .3rem; margin-block-end: .8rem }
+.v3-search-results > h3 { margin: .5rem 0 .2rem; font-size: .95rem }
+.v3-search-results > button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .65rem;
+  text-align: start;
+  overflow-wrap: anywhere;
+}
+.v3-search-results small { color: var(--muted) }
+.v3-playback-deck.v3-queue-pinned { grid-template-columns: minmax(100px, .55fr) minmax(0, 1.8fr) minmax(160px, .8fr) }
+.v3-queue-panel {
+  padding-inline-start: .8rem;
+  border-inline-start: 1px solid var(--v3-border);
+  min-width: 0;
+}
+.v3-queue-panel h2 { font-size: 1.12rem; margin-block: 0 .8rem }
+.v3-queue-tracks { display: grid; gap: .35rem; margin-block-end: .8rem; max-height: 52vh; overflow: auto }
+.v3-queue-track {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  align-items: center;
+  gap: .5rem;
+  text-align: start;
+  min-width: 0;
+}
+.v3-queue-track .artwork { width: 34px; height: 34px }
+.v3-queue-track strong, .v3-queue-track small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.v3-queue-track small { color: var(--muted) }
+.v3-queue-track.active { border-color: var(--v3-album-accent) }
+
+.v3-stage {
+  --v3-cover-accent: var(--accent, #eee8f8);
+  --v3-text: clamp(1.25rem, calc(var(--fs-text-size, 42px) * var(--v3-scale, 1)), 4.6rem);
+}
+body.lyrics-is-fullscreen .v3-stage[data-backdrop=oled] { background: #000 !important }
+body.lyrics-is-fullscreen .v3-stage[data-backdrop=oled] :is(.fs-backdrop, .fs-veil),
+.v3-stage[data-backdrop=oled]::before { display: none !important }
+body.lyrics-is-fullscreen .v3-stage:is([data-backdrop=cover],[data-backdrop=aura]) .fs-backdrop {
+  display: block !important;
+  background: #0b0c12 !important;
+  inset: 0 !important;
+}
+body.lyrics-is-fullscreen .v3-stage:is([data-backdrop=cover],[data-backdrop=aura]) .fs-backdrop img {
+  display: block !important;
+  filter: blur(2px) saturate(.9);
+  transform: none;
+  animation: none !important;
+}
+body.lyrics-is-fullscreen .v3-stage[data-backdrop=aura] .fs-backdrop img { filter: blur(45px) saturate(1.2); transform: scale(1.1) }
+body.lyrics-is-fullscreen .v3-stage:is([data-backdrop=cover],[data-backdrop=aura]) .fs-veil {
+  background: linear-gradient(90deg, #0001, #0005), rgba(0,0,0,var(--v3-dim,.68)) !important;
+}
+.v3-stage .fs-composition {
+  inset: clamp(58px, 9dvh, 95px) clamp(20px, 8vw, 125px) clamp(60px, 10dvh, 96px);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  place-items: center;
+}
+.v3-stage .fs-lyrics-column { width: 100%; max-width: 78rem; min-height: 0 }
+.v3-stage .fs-lyrics:not(.verci-renderer) {
+  padding-block: max(20px, calc((100dvh - 210px) / 2)) !important;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+.v3-stage .fs-lyrics .lyric-line {
+  font-size: var(--v3-text) !important;
+  line-height: 1.2;
+  width: min(100%, 70rem);
+  margin: .8rem auto;
+  color: #c9c8d1;
+  opacity: .37;
+  filter: none;
+}
+.v3-stage .fs-lyrics .lyric-line.current {
+  color: #fff;
+  opacity: 1;
+  transform: none;
+}
+.v3-stage[data-glow=true] .fs-lyrics .lyric-line.current {
+  text-shadow: 0 0 1.1em color-mix(in srgb, var(--v3-cover-accent) 44%, transparent);
+}
+.v3-stage .fs-lyrics .lyric-line.current :is([data-word-state=active], .word-active) {
+  color: var(--v3-cover-accent);
+}
+.v3-stage .fs-lyrics .lyric-translation {
+  font-size: calc(var(--v3-text) * var(--v3-translation,.56)) !important;
+  line-height: 1.55;
+  margin-block-start: .4em;
+}
+.v3-stage .fs-lyrics .lyric-word.separate { white-space: nowrap }
+.v3-stage[data-density=single] .fs-lyrics:not(.plain) .lyric-line:not(.current),
+.v3-stage[data-layout=focus]:not([data-density=surround]) .fs-lyrics:not(.plain) .lyric-line:not(.current) { visibility: hidden }
+.v3-stage .fs-lyrics.plain .lyric-line { opacity: 1 }
+.v3-stage .fs-lyrics .lyric-line.v3-range-start { outline: 2px solid var(--v3-cover-accent); outline-offset: 4px; opacity: 1 }
+.v3-stage[data-layout=dual] .fs-lyrics .lyric-line:has(.lyric-translation) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(.8rem, 4vw, 3rem);
+  text-align: start;
+}
+.v3-stage[data-layout=dual] .fs-lyrics .lyric-translation { border-inline-start: 1px solid #fff3; padding-inline-start: 1em; margin: 0 }
+.v3-stage[data-layout=karaoke] .fs-lyrics .lyric-line.current + .lyric-line { opacity: .67 }
+.v3-stage-actions {
+  position: absolute;
+  z-index: 9;
+  inset-block-start: max(10px, env(safe-area-inset-top));
+  inset-inline-end: max(12px, env(safe-area-inset-left));
+  display: flex;
+  gap: .45rem;
+}
+.v3-stage-icon, .v3-stage-tools button {
+  min-height: 44px;
+  border: 1px solid #ffffff24;
+  background: #15151bdd !important;
+  color: #f3f3fa;
+}
+.v3-stage-icon { display: grid; place-items: center; width: 44px; padding: 0 }
+.v3-stage-icon svg { width: 18px; height: 18px }
+.v3-stage-bottom {
+  position: absolute;
+  z-index: 8;
+  inset-inline: 42px 18px;
+  inset-block-end: max(8px, env(safe-area-inset-bottom));
+  display: grid;
+  justify-items: center;
+  pointer-events: none;
+}
+.v3-stage-tools { display: flex; justify-content: center; flex-wrap: wrap; gap: .35rem; pointer-events: auto }
+.v3-stage-tools button { font-size: .82rem; padding: .45rem .7rem }
+.v3-stage-tools button[aria-pressed=true] { border-color: var(--v3-cover-accent); color: var(--v3-cover-accent) }
+.v3-gap { color: var(--v3-cover-accent); font-size: clamp(1rem, 4vw, 2.8rem); font-variant-numeric: tabular-nums }
+.v3-stage-dock-tools { display: flex; flex-wrap: wrap; gap: .4rem; margin-block-start: .6rem }
+.v3-stage .fs-dock-handle { width: 36px; touch-action: pan-y; opacity: .75 }
+.v3-stage .fs-dock { transform: translateX(calc(-100% + 36px)) }
+.v3-stage .fs-dock:is([data-open=true],:hover,:focus-within), .v3-stage[data-dock-pinned=true] .fs-dock { transform: translateX(0) }
+.v3-stage[data-dock-pinned=true] .fs-dock-content { opacity: 1; visibility: visible }
+.v3-stage-cover {
+  position: absolute;
+  inset: 50% auto auto clamp(35px, 7vw, 116px);
+  transform: translateY(-50%);
+  width: min(26vw, 42dvh, 420px);
+  display: none;
+  gap: .7rem;
+  pointer-events: none;
+}
+.v3-stage-cover .artwork { width: 100%; aspect-ratio: 1; box-shadow: 0 14px 38px #0007 }
+.v3-stage-cover strong, .v3-stage-cover small { text-align: start; overflow-wrap: anywhere }
+.v3-stage-cover small { color: #d0ccd8 }
+.v3-stage[data-layout=theater][data-art=true] .v3-stage-cover { display: grid }
+.v3-stage[data-layout=theater][data-art=true] .fs-composition { left: clamp(215px, 39vw, 590px); right: clamp(20px, 6vw, 100px) }
+.v3-design-preview {
+  background: #000;
+  border: 1px solid var(--v3-border);
+  color: #fff;
+  min-height: 8.7rem;
+  padding: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.4rem;
+  margin-block-end: 1rem;
+}
+.v3-design-preview[data-preview-background=theme] { background: var(--panel-solid) }
+.v3-design-preview:is([data-preview-background=cover],[data-preview-background=aura]) {
+  background: color-mix(in srgb, #000 calc(var(--preview-dim,.68) * 100%), var(--v3-album-accent));
+}
+.v3-design-preview .artwork { width: min(96px, 24%); aspect-ratio: 1; flex-shrink: 0 }
+.v3-design-sample { display: grid; gap: .4em; font-size: calc(1.45rem * var(--preview-size,1)); text-align: center }
+.v3-design-sample span { font-size: calc(1em * var(--preview-translation,.56)); color: #e0d9e6 }
+.v3-design-sample strong { font-family: var(--lyric-font, inherit) }
+.v3-design-sample span { font-family: var(--translation-font, inherit) }
+.v3-design-preview[data-preview-layout=dual] .v3-design-sample { grid-template-columns: 1fr 1fr }
+.v3-design-preview[data-preview-glow=true] strong { text-shadow: 0 0 1em var(--v3-album-accent) }
+.v3-design-grid { margin-block-end: .85rem }
+.v3-cue-row { display: flex; justify-content: space-between; gap: .4rem; margin-block-end: .45rem }
+.v3-cue-row bdi { color: var(--muted); margin-inline-start: .35rem }
+.v3-panel-list { display: grid; gap: .6rem; margin-block: .9rem }
+.v3-panel-list details { border-block-end: 1px solid var(--v3-border); padding: .6rem .25rem }
+.v3-panel-list summary { cursor: pointer; overflow-wrap: anywhere }
+.v3-panel-list small { color: var(--muted) }
+.v3-subtitles { display: grid; gap: .5rem; max-height: 49dvh; overflow: auto }
+.v3-subtitle-row { display: grid; grid-template-columns: minmax(110px,.8fr) minmax(115px,1fr) minmax(115px,1fr); gap: .6rem; align-items: center }
+.v3-subtitle-row input { width: 100%; min-width: 0 }
+#v3-mini-close { -webkit-app-region: no-drag; margin-inline-start: auto; min-height: 28px; padding-block: 2px }
+#v3-mini-close[hidden] { display: none }
+.v3-mini-player .shell,
+.v3-mini-player .titlebar :is(.window-caption, .language-switch, .v3-title-search),
+.v3-mini-player .transport-options { display: none !important }
+.v3-mini-player #transport {
+  position: fixed;
+  inset: 40px 0 0;
+  display: grid;
+  grid-template-columns: minmax(105px, .8fr) minmax(0, 1.3fr);
+  gap: 8px;
+  padding: 6px 10px;
+  height: auto;
+  min-height: 0;
+}
+.v3-mini-player #transport .transport-center { min-width: 0 }
+.v3-mini-player #transport .now-track { min-width: 0 }
+.v3-mini-player #transport .play-main { width: 34px; height: 34px }
+#v3-clip-preview { max-width: 100%; max-height: 30dvh; display: block; margin-inline: auto; object-fit: contain }
+
+@media(max-width: 920px) {
+  .v3-playback-deck.v3-queue-pinned { grid-template-columns: minmax(0, 1fr) minmax(155px, .55fr) }
+  .v3-playback-deck.v3-queue-pinned > .lyrics-meta { display: none }
+}
+@media(max-width: 699px) {
+  .v3-title-search kbd, .v3-title-search span { display: none }
+  .v3-title-search { margin-inline-start: 0 }
+  .v3-home-header { align-items: start; flex-direction: column }
+  .v3-home-actions button { font-size: .78rem }
+  .v3-resume { grid-template-columns: 60px minmax(0, 1fr) }
+  .v3-resume > button { grid-column: 2; justify-self: start }
+  .v3-playback-deck.v3-queue-pinned { grid-template-columns: minmax(0, 1fr) }
+  .v3-queue-panel { border-inline-start: 0; padding: .8rem 0; border-block-start: 1px solid var(--v3-border) }
+  .v3-stage { --v3-text: clamp(1.2rem, calc(var(--fs-text-size,42px) * var(--v3-scale,1) * .74), 2.75rem) }
+  .v3-stage .fs-composition { inset-inline: 42px 16px }
+  .v3-stage[data-layout=theater][data-art=true] .v3-stage-cover {
+    inset: 52px 0 auto;
+    width: 100%;
+    transform: none;
+    place-items: center;
+    gap: .3rem;
+  }
+  .v3-stage-cover .artwork { max-width: 82px }
+  .v3-stage-cover small { display: none }
+  .v3-stage[data-layout=theater][data-art=true] .fs-composition { left: 42px; right: 16px; top: 154px }
+  .v3-stage[data-layout=dual] .fs-lyrics .lyric-line:has(.lyric-translation) { display: block; text-align: center }
+  .v3-stage[data-layout=dual] .fs-lyrics .lyric-translation { border: 0; padding: 0; margin-block-start: .4em }
+  .v3-stage-bottom { inset-inline: 34px 9px }
+  .v3-stage-tools button { font-size: .72rem }
+  .v3-subtitle-row { grid-template-columns: 1fr }
+}
+@media(prefers-reduced-motion: reduce) {
+  .v3-stage *, .v3-stage *::before, .v3-stage *::after { animation: none !important; transition: none !important }
+}

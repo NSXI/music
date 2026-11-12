@@ -5,9 +5,21 @@
  for(const [key,value] of Object.entries(defaults))if(ui[key]===undefined)ui[key]=structuredClone(value);
  let workspace=null,ready=false,saveTimer=0,writing=false,writePromise=null,dirty=false,sessionTimer=0,sessionBusy=false,lastRecorded=0,lastTrack='',listened=0,playStarted=false;
  const pages={};
- window.nawaV2={pages,t,en,get workspace(){return workspace},scheduleSave,afterRender,downloadText,importText,restoreUI,saveSession,flush:flushWorkspace};
+ window.nawaV2={pages,t,en,get workspace(){return workspace},scheduleSave,afterRender,downloadText,importText,restoreUI,saveSession,refreshCollections,flush:flushWorkspace};
  function scheduleSave(){if(!ready)return;dirty=true;clearTimeout(saveTimer);saveTimer=setTimeout(()=>flushWorkspace().catch(error=>toast(error.message)),1000)}
- async function flushWorkspace(){if(!ready)return;if(writePromise){await writePromise;if(dirty)return flushWorkspace();return}if(!dirty)return;writing=true;dirty=false;let reschedule=true;writePromise=(async()=>{try{workspace=await call('SaveWorkspace',workspace.revision,ui,workspace.downloads)}catch(error){dirty=true;reschedule=false;if(String(error.message).includes('تغيّرت الإعدادات')){workspace=await call('GetWorkspace');reschedule=true}throw error}finally{writing=false;writePromise=null;if(dirty&&reschedule)scheduleSave()}})();return writePromise}
+ async function flushWorkspace(){if(!ready)return;if(writePromise){await writePromise;if(dirty)return flushWorkspace();return}if(!dirty)return;writing=true;dirty=false;let reschedule=true;writePromise=(async()=>{try{workspace=await call('SaveWorkspace',workspace.revision,ui,workspace.downloads)}catch(error){dirty=true;reschedule=false;if(String(error.message).includes('تغيّرت الإعدادات')){await refreshCollections(true);reschedule=true}throw error}finally{writing=false;writePromise=null;if(dirty&&reschedule)scheduleSave()}})();return writePromise}
+ async function refreshCollections(duringSave=false){
+  if(!ready)return;
+  if(!duringSave&&writePromise)await writePromise.catch(()=>{});
+  const previous=workspace;
+  const next=await call('GetWorkspace');
+  for(const key of ['favorites','playlists']){
+   const oldValue=previous?.ui?.[key]||[];
+   if(JSON.stringify(ui[key]||[])===JSON.stringify(oldValue))ui[key]=next.ui?.[key]||[];
+  }
+  if(!workspace||next.revision>=workspace.revision)workspace=next;
+  if(!duringSave){persist();if(['home','library','albums','collection'].includes(view))render();updateNow()}
+ }
  async function restoreUI(){workspace=await call('GetWorkspace');const values=workspace.ui||{};for(const [key,value] of Object.entries(values))if(key!=='__proto__'&&key!=='constructor')ui[key]=value;applyAppearance();audio.loop=Boolean(ui.repeat);applyFX();window.madarFullscreen?.applyPreferences();window.madarResources?.adopt(ui.performanceMode);persist();render();updateNow()}
  async function downloadText(name,text){const saved=await call('ExportTextDocument',name,text);if(saved)toast(t('تم تصدير الملف','File exported'));return saved}
  async function importText(){return await call('ImportTextDocument')}

@@ -163,7 +163,7 @@ class MainActivity : ComponentActivity() {
             executor.execute {
                 try {
                     val args=JSONArray(argsJson)
-                    if(method in listOf("Enqueue","StartAlignment","StartRangeAlignment","StartDevicePull","StartTranslation","CacheLibraryLyrics","ImportFiles","AddLibraryFolder","RescanLibraryFolders","DownloadTimingModel","DownloadAppUpdate","OpenUpdatePage"))main.post { runCatching { androidx.core.content.ContextCompat.startForegroundService(this@MainActivity,WorkService.intent(this@MainActivity)) } }
+                    if(method in listOf("Enqueue","StartAlignment","StartRangeAlignment","StartFullLyricReview","StartOfflinePack","FinishLyricClip","StartDevicePull","StartTranslation","CacheLibraryLyrics","ImportFiles","AddLibraryFolder","RescanLibraryFolders","DownloadTimingModel","DownloadAppUpdate","OpenUpdatePage"))main.post { runCatching { androidx.core.content.ContextCompat.startForegroundService(this@MainActivity,WorkService.intent(this@MainActivity)) } }
                     if(method=="CancelAlignment")TimingEngine(app).cancel()
                     when(method) {
                         "ImportFiles" -> launchPicker(id,false,arrayOf("audio/*","application/ogg","application/octet-stream")) { uris ->
@@ -193,6 +193,22 @@ class MainActivity : ComponentActivity() {
                             val base=name.substringBeforeLast('.',name);val extension=name.substringAfterLast('.',"json")
                             val output=folder.createFile(if(extension=="json")"application/json" else "text/plain","$base-${System.currentTimeMillis()}.$extension") ?: error("تعذر إنشاء الملف")
                             contentResolver.openOutputStream(output.uri,"w")!!.use {it.write(bytes)};output.name
+                        }
+                        "SaveLyricClip" -> launchPicker(id,true) { uris ->
+                            val path=CoreBridge.call("LyricClipPath",JSONArray().put(args.getString(0))) as String
+                            val file=File(path).canonicalFile
+                            val clipRoot=File(app.root,"data/lyric-clips").canonicalFile
+                            check(file.parentFile==clipRoot&&file.isFile) {"الفيديو غير متاح"}
+                            val folder=DocumentFile.fromTreeUri(this@MainActivity,uris.first()) ?: error("المجلد غير متاح")
+                            val output=folder.createFile("video/mp4","Nawa-lyrics-${System.currentTimeMillis()}.mp4") ?: error("تعذر إنشاء الفيديو")
+                            try {
+                                contentResolver.openOutputStream(output.uri,"w")!!.use {stream -> file.inputStream().use {it.copyTo(stream)} }
+                            } catch(e:Exception) {
+                                output.delete()
+                                throw e
+                            }
+                            file.delete()
+                            output.name
                         }
                         "ImportTextDocument" -> launchPicker(id,false,arrayOf("application/json","text/*","application/octet-stream")) { uris ->
                             contentResolver.openInputStream(uris.first())!!.bufferedReader(Charsets.UTF_8).use {reader ->

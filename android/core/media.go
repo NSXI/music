@@ -486,6 +486,7 @@ func (s *Studio) preparePlayback(id string, force bool) (Playback, error) {
 	if !ok || t.Status != "done" {
 		return Playback{}, errors.New("نزّل المسار أو أضف ملفًا محليًا أولًا")
 	}
+	t.Path = s.audioForPlayback(t)
 	if _, e := os.Stat(t.Path); e != nil {
 		return Playback{}, errors.New("الملف غير موجود في مكانه؛ أعد استيراده")
 	}
@@ -540,7 +541,7 @@ func (s *Studio) MediaHandler() http.Handler {
 		path := ""
 		switch parts[0] {
 		case "media":
-			path = t.Path
+			path = s.audioForPlayback(t)
 		case "art":
 			path = t.Cover
 		case "decoded":

@@ -95,7 +95,7 @@ class PlaybackService : MediaSessionService() {
         player.playWhenReady=playing
     }
     override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession = session
-    override fun onDestroy() { instance=null;if(::transport.isInitialized)transport.close();releaseEffects();session.release();player.release();super.onDestroy() }
+    override fun onDestroy() { instance=null;PlaybackWidget.disconnected(this);if(::transport.isInitialized)transport.close();releaseEffects();session.release();player.release();super.onDestroy() }
     private fun releaseEffects() {
         runCatching { eq?.release() };runCatching { reverb?.release() };runCatching { spatial?.release() };runCatching {loudness?.release()}
         eq=null;reverb=null;spatial=null;loudness=null;effectSession=0

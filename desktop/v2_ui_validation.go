@@ -13,7 +13,7 @@ func validateWorkspaceValue(k string, v json.RawMessage) error {
 	if string(v) == "null" {
 		return bad
 	}
-	if strings.Contains(" motion translationEnabled translationAuto preservePitch bypass shuffle repeat normalizeVolume showOriginal showTranslation showRomanization sleepEndOfTrack fsAmbient themeEntrance watchFolders ", " "+k+" ") {
+	if strings.Contains(" motion translationEnabled translationAuto preservePitch bypass shuffle repeat normalizeVolume showOriginal showTranslation showRomanization sleepEndOfTrack fsAmbient themeEntrance watchFolders v3AlbumNormalization v3ConnectedSync ", " "+k+" ") {
 		var b bool
 		if json.Unmarshal(v, &b) != nil {
 			return bad
@@ -31,6 +31,8 @@ func validateWorkspaceValue(k string, v json.RawMessage) error {
 		return nil
 	}
 	switch k {
+	case "v3Stage", "v3Cues", "v3OfflineQuota":
+		return validateV3Preference(k, v)
 	case "eq":
 		var a []float64
 		if json.Unmarshal(v, &a) != nil || len(a) != 10 {
