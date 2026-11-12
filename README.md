@@ -1,66 +1,92 @@
 <div align="center">
 
-# نَوى 2.0 · Nawa
+# نَوى 3.0 · Nawa Music
 
-موسيقاك، كلماتك، وأجهزتك — على Windows وأندرويد.
+مشغّل موسيقى مستقل لويندوز وأندرويد، بمكتبة محلية وشاشة كلمات متزامنة.
 
-[التنزيل](https://github.com/NSXI/music/releases/latest) · [التثبيت](docs/INSTALL-AR.md) · [جديد 2.0](docs/RELEASE-2.0-AR.md) · [التحقق وحدوده](docs/VALIDATION-AR.md)
+**[حمّل APK لأندرويد](https://github.com/NSXI/music/releases/latest/download/Nawa-Android-Samsung-arm64.apk)** · **[حمّل ZIP لويندوز](https://github.com/NSXI/music/releases/latest/download/Nawa-Windows-x64.zip)**
 
-![الرئيسية في نَوى 2.0](docs/media/v2-home-ar.png)
+[شرح التثبيت والتحديث](docs/INSTALL-AR.md) · [جديد 3.0](docs/RELEASE-3.0-AR.md) · [نتائج الاختبار](docs/VALIDATION-3.0-AR.md) · [جميع الإصدارات](https://github.com/NSXI/music/releases)
+
+![الرئيسية في نَوى 3.0. تعرض الأغنية الأخيرة والرفوف المحلية وأزرار البحث وإضافة الموسيقى.](docs/media/v3-home-ar.png)
 
 </div>
 
-## التنزيل
+## ثبّت نَوى
 
-| الجهاز | الحزمة | المتطلبات |
-|---|---|---|
-| Windows | [Nawa-Windows-x64.zip](https://github.com/NSXI/music/releases/latest/download/Nawa-Windows-x64.zip) | Windows 10/11 x64 + WebView2 |
-| الهاتف والتابلت | [Nawa-Android-Samsung-arm64.apk](https://github.com/NSXI/music/releases/latest/download/Nawa-Android-Samsung-arm64.apk) | Android 9+ ARM64 |
-| مطابقة توقيت Windows، اختياري | [Nawa-Windows-Alignment.zip](https://github.com/NSXI/music/releases/latest/download/Nawa-Windows-Alignment.zip) | يُنزّل من الإعدادات عند الحاجة |
-| ترجمة Windows المحلية، اختياري | [Nawa-Windows-Translation.zip](https://github.com/NSXI/music/releases/latest/download/Nawa-Windows-Translation.zip) | يُنزّل من الإعدادات عند الحاجة |
+| الجهاز | خطوات التثبيت |
+| --- | --- |
+| Android 9 فأحدث بمعالج ARM64 | [حمّل APK](https://github.com/NSXI/music/releases/latest/download/Nawa-Android-Samsung-arm64.apk)، افتحه من التنزيلات ووافق على التثبيت. ثبّته فوق نسختك الحالية للحفاظ على المكتبة والإعدادات. |
+| Windows 10 أو 11 بنظام x64 | [حمّل ZIP](https://github.com/NSXI/music/releases/latest/download/Nawa-Windows-x64.zip)، فكّه بالكامل وشغّل `Nawa.exe` من المجلد. يحتاج التطبيق WebView2. |
+| تحديث النسخة المثبتة | من **المزيد ← الإعدادات والمصادر ← التحديثات** افحص الإصدار ونزّله. أندرويد يطلب موافقة النظام بعد فحص الحزمة. |
 
-حدّث فوق النسخة السابقة للحفاظ على البيانات. أندرويد يحتاج موافقة النظام على تثبيت APK. راجع [الدليل](docs/INSTALL-AR.md) قبل نقل مجلد Windows أو تغيير جهازك.
+تجد خطوات الترقية مع الاحتفاظ بالبيانات، والمحركات الاختيارية، وحلول مشاكل التثبيت في [دليل التثبيت](docs/INSTALL-AR.md).
 
-## المميزات
+## أين أجد الميزات؟
 
-- رئيسية قابلة للترتيب، ألبومات ومجلدات وجينرا ومفضلة ومجموعات ذكية وسجل استماع.
-- تشغيل محلي وبث من المصادر المدعومة، بحث مجمّع حسب التسجيل، ومعاينة وجودة وصيغة معروفة قبل التنزيل.
-- محرر توقيت بالموجة وسطور وكلمات وتراجع وسجل مصادر، وتحليل مقطع من الصوت باختيارك ومراجعتك.
-- كلمات محفوظة وترجمة ونطق تضيفه بنفسك؛ 107 أشكال و15 حركة مع الخطوط والمعاينات.
-- شاشة كلمات كاملة، أوضاع عرض متعددة وتصميم محفوظ لكل أغنية أو قائمة، وثيمات الألعاب والخلفيات السابقة.
-- تداخل بين الأغاني وطبقة مستقلة وLUFS ومؤقت نوم وإعدادات للسماعات.
-- طابور بحد مسار أو مسارين، جدولة وشبكة وسرعة، ومراجعة نسخة أعلى جودة قبل استبدال المسار في المكتبة مع بقاء الأصل.
-- مشاركة محلية مؤقتة برمز QR مع فحص الملفات، ونسخ احتياطية ومزامنة HTTPS WebDAV يدوية اختيارية.
-- إصدار مشترك للمنصتين وتحديثات داخل التطبيق مع فحص البصمة.
+| أبغى أسوي | المكان داخل نَوى |
+| --- | --- |
+| أضيف مكتبتي وأرتّبها | **المكتبة** لاستيراد الملفات والمجلدات، والألبومات، والمفضلة، والقوائم والجينرا. افتح **تنظيم المكتبة** لمراجعة النسخ المتشابهة والملفات المنقولة. |
+| أبحث وأسمع قبل التحميل | **البحث** للمصادر المتاحة ومعاينة النتيجة ومقارنة النوع والجودة والحجم حين يوفّرها المصدر. `Ctrl+K` يبحث سريعًا داخل المكتبة ويفتح البحث في المصادر. |
+| أعرض الكلمات والترجمة | **الكلمات ← ملء الشاشة** للمسرح والتركيز واللغتين والكاراوكي. عدّل خلفية العرض والخطوط والحركة، واحفظ التصميم للأغنية أو الألبوم. افتح المشغّل من اليسار. |
+| أضبط توقيت أغنية أو أصدّرها | **المزيد ← استوديو الكلمات** لتحليل التوقيت بطلبك ومراجعة الكلمات عند مواضعها، وتعديل الترجمة والنطق. يدعم LRC وTTML وSRT وفيديو MP4. |
+| أسمع وأقرأ الكلمات بلا إنترنت | **المكتبة ← أوفلاين** لحفظ قائمة أو ألبوم مع الأغلفة والكلمات والترجمة المتوفرة. اختر حد المساحة وراجع حالة الملفات. |
+| أكمّل على جهاز آخر | **المزيد ← الأجهزة** لربط جهازين على نفس الشبكة ومتابعة الموضع والطابور عند توفر المسارات على الجهاز الثاني. يدعم مزامنة المفضلة والقوائم والكلمات المعدّلة. |
+| أضبط الصوت والمظهر | **المزيد ← استوديو الصوت** للموازنة، والإيكولايزر، والسرعة، والطبقة، والريفيرب والتداخل. **المظهر والحركة** للثيمات والألوان. |
 
-### استوديو الكلمات والحركات
+## معاينات من التطبيق
 
-![استوديو التوقيت](docs/media/v2-lyrics-studio-ar.png)
+### شاشة الكلمات
 
-![عرض فعلي لحركات الكلمات في واجهة التطبيق](docs/media/v2-lyrics-motion.gif)
+![وضع المسرح يعرض غلاف الألبوم بجوار الكلمات والترجمة.](docs/media/v3-theater-ar.png)
 
-التأثيرات مربوطة بساعة الصوت. حرف بحرف تقدّم بصري داخل زمن الكلمة؛ الترجمة تتبع نافذة الأصل ولا تحمل توقيت نطق مستقلًا.
+<details>
+<summary>شاهد حركة الكلمات والترجمة</summary>
 
-### الثيمات والمكتبة والأجهزة
+![معاينة متحركة لعرض لغتين. الأصل والترجمة يظهران بتدرّج متزامن.](docs/media/v3-lyrics.gif)
 
-![معاينات المظهر في التطبيق](docs/media/v2-themes.gif)
+</details>
 
-![المجموعات](docs/media/v2-collections-en.png)
+<details>
+<summary>شاهد إعدادات تصميم شاشة الكلمات</summary>
 
-![الأجهزة](docs/media/v2-devices-ar.png)
+![نافذة التصميم مع معاينة، وخيارات الخلفية والخطوط وتدرّج الظهور.](docs/media/v3-design-ar.png)
 
-### الهاتف والتابلت
+</details>
 
-![واجهة تابلت فعلية داخل محاكي صامت](docs/media/v2-android-tablet.png)
+### استوديو التوقيت
 
-![واجهة هاتف داخل المحاكي](docs/media/v2-android-phone.png)
+![محرر الكلمات يعرض الموجة الصوتية والسطور وخيارات تحليل التوقيت والتصدير.](docs/media/v3-studio-ar.png)
 
-هذه لقطات من التطبيق بمكتبة اختبار معزولة. ليست قياسًا لأداء جهاز سامسونج فعلي. دعم Dolby وHi-Res يعتمد على الجهاز ومسار الإخراج، والتحميل يعتمد على الملف المتاح وصلاحيات المصدر. لا يُتجاوز المحتوى المحمي ولا تُسمّى الملفات المضغوطة Lossless لمجرد التحويل.
+<details>
+<summary>شاهد دخوليات الثيمات</summary>
+
+![معاينة متحركة لدخوليات Bloodborne وKingdom Hearts وPersona 3 Reload.](docs/media/v3-themes.gif)
+
+</details>
+
+<details>
+<summary>شاهد البحث السريع</summary>
+
+![نافذة البحث السريع تعرض نتيجة من المكتبة وخيار البحث في المصادر.](docs/media/v3-search-ar.png)
+
+</details>
+
+<details>
+<summary>شاهد واجهة الهاتف والتابلت</summary>
+
+![الرئيسية على هاتف بمحاكي أندرويد.](docs/media/v3-android-phone-en.png)
+
+![عرض المسرح على تابلت بمحاكي أندرويد.](docs/media/v3-android-tablet-ar.png)
+
+</details>
+
+الصور من نَوى 3.0 بمكتبة تجريبية. ملفات GIF تعمل بـ25 إطارًا في الثانية للمعاينة. أداء التطبيق الفعلي يتبع إعدادات الشاشة والجهاز. جودة البث والتنزيل تعتمد على المصدر، وتوفر ميزات الصوت مثل Dolby يعتمد على الجهاز ومسار الإخراج. [نتائج الاختبار وحدوده](docs/VALIDATION-3.0-AR.md)
 
 ## English
 
-Nawa 2.0 is an independent Windows and Android music player with a shared bilingual interface, cached lyrics/artwork, a waveform timing editor, local device transfers, portable backup, optional WebDAV sync and in-app release checks. Install over the previous signed Android version to retain data. Windows model engines are optional downloads. Artwork/lyric providers and audio quality depend on available authorized sources. Character reveal and translated-text progress are visual effects, not measured phoneme alignment. See the installation guide and validation report for platform-specific limits.
+Nawa 3.0 is a bilingual Windows and Android music player with a local library, synchronized lyrics and translations, offline packs, LAN playback handoff, and optional audio-based lyric alignment. [Download for Windows](https://github.com/NSXI/music/releases/latest/download/Nawa-Windows-x64.zip) or [Android](https://github.com/NSXI/music/releases/latest/download/Nawa-Android-Samsung-arm64.apk). Install the signed APK over an existing Nawa installation to keep your data. [Installation and troubleshooting](docs/INSTALL-AR.md)
 
-## البناء والتراخيص
+## المصدر والتراخيص
 
-المصدر في `desktop/` و`android/`. اختبارات CI تبني نسخ اختبار؛ توقيع إصدار Android الخاص غير موجود في المستودع. تراخيص المكتبات والخطوط والأصول في ملفات `THIRD-PARTY.md` و`licenses/`. لا يتضمن المصدر مكتبتك أو حساباتك أو ملفات موسيقى أو مفاتيح توقيع.
+تجد مصدر ويندوز في `desktop/` ومصدر أندرويد في `android/`. تراخيص الأدوات والخطوط والأصول في [ويندوز](desktop/THIRD-PARTY.md) و[أندرويد](android/THIRD-PARTY.md). [طريقة البناء والنشر](docs/PUBLISHING-AR.md)
